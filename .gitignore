@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+.venv/
+
+# Environment / secrets
+.env
+config/.env
+
+# OS
+.DS_Store
+
+# Generated analysis output (regenerable via tracker.py / compare_versions.py)
+dependency_test_output.json
+formula_comparison.json
+full_report.json
+normalized_formulas_preview.json
+reports/

@@ -204,90 +204,70 @@
     overflow: hidden
   }
 
-  aside {
-    width: 214px;
-    flex-shrink: 0;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--sb);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto
-  }
-
-  .aside-head {
-    padding: 14px 12px 6px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #2E4460
-  }
-
-  .sheet-btn {
-    padding: 8px 10px;
-    margin: 1px 8px;
-    border-radius: 6px;
-    cursor: pointer;
+  /* ── Sheet bar (replaces the old sidebar) ───────────────────── */
+  .sheet-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #5A7090;
-    font-size: 12.5px;
-    transition: background .12s, color .12s;
-    border: none;
-    background: transparent;
-    width: calc(100% - 16px);
-    font-family: var(--sans);
-    text-align: left
+    gap: 16px;
+    padding: 12px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap
   }
 
-  .sheet-btn:hover {
-    background: rgba(255, 255, 255, .05);
-    color: #9AAFCA
-  }
-
-  .sheet-btn.active {
-    background: var(--accent-sub);
-    color: #D0E0F4
-  }
-
-  .sheet-btn.active .sname {
-    color: var(--accent)
-  }
-
-  .sbadge {
-    font-size: 10px;
-    font-variant-numeric: tabular-nums;
-    background: rgba(255, 255, 255, .05);
-    color: #3A5070;
-    padding: 1px 6px;
-    border-radius: 9px;
-    flex-shrink: 0
-  }
-
-  .sheet-btn.active .sbadge {
-    background: var(--accent-sub);
-    color: var(--accent)
-  }
-
-  .aside-global {
-    padding: 12px 12px 10px;
-    margin-top: auto;
-    border-top: 1px solid rgba(255, 255, 255, .05)
-  }
-
-  .gstat {
+  .sheet-bar-left {
     display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    padding: 2px 0;
-    color: #3A5070
+    align-items: center;
+    gap: 12px
   }
 
-  .gstat span:last-child {
-    font-variant-numeric: tabular-nums;
-    color: #5A7090
+  .sb-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text-muted)
   }
+
+  .sheet-select {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 6px 11px;
+    min-width: 240px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color .12s
+  }
+
+  .sheet-select:hover, .sheet-select:focus { border-color: var(--accent) }
+
+  .sheet-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    flex-wrap: wrap
+  }
+
+  .wb-stat { white-space: nowrap }
+  .wb-stat b {
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    font-weight: 650;
+    margin-right: 3px
+  }
+  .wb-stat.wa b { color: var(--c-added) }
+  .wb-stat.wr b { color: var(--c-removed) }
+  .wb-stat.ws b { color: var(--c-semantic) }
+  .wb-stat.wf b { color: var(--c-refshift) }
 
   /* ── Main ────────────────────────────────────────────────────── */
   .main {
@@ -427,7 +407,7 @@
   .scard {
     flex: 1;
     background: var(--surface);
-    padding: 10px 14px;
+    padding: 12px 18px;
     border-top: 3px solid transparent;
     min-width: 0;
     cursor: default
@@ -492,10 +472,10 @@
   .filter-bar {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 7px 14px;
+    padding: 9px 18px;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 9px;
     flex-shrink: 0
   }
 
@@ -522,54 +502,29 @@
     gap: 3px
   }
 
-  .chip {
-    padding: 2px 9px;
-    border-radius: 10px;
-    font-size: 11.5px;
-    font-weight: 600;
+  .col-select {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface);
     border: 1px solid var(--border);
-    background: transparent;
+    border-radius: var(--r);
+    padding: 4px 8px;
+    max-width: 100%;
+    min-width: 260px;
     cursor: pointer;
-    color: var(--text-muted);
-    font-family: var(--mono);
-    transition: all .12s
+    outline: none
   }
-
-  .chip:hover {
-    border-color: var(--accent);
-    color: var(--text)
-  }
-
-  .chip.on {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff
-  }
-
-  .chip-letter {
-    display: block;
-    font-family: var(--mono);
-    font-weight: 700;
-    font-size: 11.5px;
-    line-height: 1.3
-  }
-  .chip-name {
-    display: block;
-    font-family: var(--sans);
-    font-weight: 400;
-    font-size: 9px;
-    max-width: 84px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-muted);
-    line-height: 1.3;
-    margin-top: 1px
-  }
-  .chip.on .chip-name { color: rgba(255,255,255,.75) }
-  .chip:hover .chip-name { color: var(--text) }
+  .col-select:hover, .col-select:focus { border-color: var(--accent) }
 
   /* ── Added / Removed column header banner ───────────────── */
+  #added-cols-banner {
+    flex-shrink: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 12px 18px 0
+  }
+  #added-cols-banner:empty { padding: 0 }
   .col-hdr-section { margin-bottom: 10px }
   .col-hdr-section-label {
     font-size: 10px;
@@ -580,6 +535,7 @@
   }
   .col-hdr-section.added  .col-hdr-section-label { color: var(--c-added) }
   .col-hdr-section.removed .col-hdr-section-label { color: var(--c-removed) }
+  .col-hdr-section.moved  .col-hdr-section-label { color: var(--c-refshift) }
   .col-hdr-tags { display: flex; flex-wrap: wrap; gap: 5px }
   .col-hdr-tag {
     display: inline-flex;
@@ -593,10 +549,12 @@
   }
   .added  .col-hdr-tag { border-color: var(--c-added) }
   .removed .col-hdr-tag { border-color: var(--c-removed) }
+  .moved  .col-hdr-tag { border-color: var(--c-refshift) }
   .col-hdr-tag .tag-letter { font-family: var(--mono); font-weight: 700; font-size: 11px }
   .added   .col-hdr-tag .tag-letter { color: var(--c-added) }
   .removed .col-hdr-tag .tag-letter { color: var(--c-removed) }
-  .badge-new, .badge-del {
+  .moved   .col-hdr-tag .tag-letter { color: var(--c-refshift) }
+  .badge-new, .badge-del, .badge-moved {
     display: inline-block;
     font-size: 8px;
     font-weight: 700;
@@ -610,6 +568,7 @@
   }
   .badge-new { color: var(--c-added);   border-color: var(--c-added) }
   .badge-del { color: var(--c-removed); border-color: var(--c-removed) }
+  .badge-moved { color: var(--c-refshift); border-color: var(--c-refshift) }
 
   .ttabs {
     display: flex;
@@ -666,6 +625,31 @@
     color: var(--c-unch)
   }
 
+  .ttab.on.rt-row_added, .ttab.on.rt-column_added {
+    border-color: var(--c-added);
+    color: var(--c-added)
+  }
+
+  .ttab.on.rt-row_removed, .ttab.on.rt-column_removed {
+    border-color: var(--c-removed);
+    color: var(--c-removed)
+  }
+
+  .ttab.on.rt-column_shifted {
+    border-color: var(--c-refshift);
+    color: var(--c-refshift)
+  }
+
+  .ttab.on.rt-column_shifted_and_logic_changed {
+    border-color: var(--c-semantic);
+    color: var(--c-semantic)
+  }
+
+  .ttab.on.rt-content, .ttab.on.rt-none {
+    border-color: var(--c-unch);
+    color: var(--c-unch)
+  }
+
   .tc {
     font-size: 10px;
     background: var(--surface-2);
@@ -676,11 +660,22 @@
     vertical-align: middle
   }
 
+  /* View wraps: flex column so the table scrolls internally and the
+     filter bar / pagination bar stay fixed in place, always visible. */
+  #col-view-wrap, #cell-view-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0
+  }
+
   /* Table */
   .twrap {
     flex: 1;
     overflow: auto;
-    background: var(--bg)
+    background: var(--bg);
+    min-height: 0
   }
 
   table {
@@ -754,15 +749,80 @@
   }
 
   td.tc-col {
-    width: 36px;
+    width: 130px;
+    max-width: 130px;
     color: var(--text-muted);
     font-family: var(--mono);
     font-size: 11px
   }
 
+  .col-sub {
+    display: block;
+    font-family: var(--sans);
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 122px;
+    line-height: 1.3;
+    margin-top: 1px
+  }
+
   td.tc-type {
     width: 90px;
     white-space: nowrap
+  }
+
+  td.tc-reason {
+    max-width: 170px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis
+  }
+
+  .reason-tag {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 10.5px;
+    font-weight: 550;
+    padding: 2px 7px;
+    border-radius: 9px;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border)
+  }
+
+  /* Structural (explained) reasons get a neutral tone; unexplained content
+     changes intentionally get NO tag at all (handled by the "—" fallback),
+     since that's the case most worth a user's attention. */
+  .reason-tag.rt-row_added, .reason-tag.rt-column_added {
+    color: var(--c-added);
+    border-color: var(--c-added);
+    background: rgba(26, 155, 104, .08)
+  }
+
+  .reason-tag.rt-row_removed, .reason-tag.rt-column_removed {
+    color: var(--c-removed);
+    border-color: var(--c-removed);
+    background: rgba(199, 54, 80, .08)
+  }
+
+  .reason-tag.rt-column_shifted {
+    color: var(--c-refshift);
+    border-color: var(--c-refshift);
+    background: rgba(43, 130, 204, .08)
+  }
+
+  .reason-tag.rt-column_shifted_and_logic_changed {
+    color: var(--c-semantic);
+    border-color: var(--c-semantic);
+    background: rgba(201, 121, 36, .08)
   }
 
   td.tc-f {
@@ -884,12 +944,11 @@
     font-style: italic
   }
 
-  /* Pagination */
+  /* Results summary bar (no pagination — full list renders in one scroll) */
   .pgbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 7px 14px;
+    padding: 9px 18px;
     background: var(--surface);
     border-top: 1px solid var(--border);
     flex-shrink: 0
@@ -901,38 +960,13 @@
     font-variant-numeric: tabular-nums
   }
 
-  .pgbtns {
-    display: flex;
-    gap: 3px
-  }
-
-  .pgbtn {
-    padding: 3px 9px;
-    border-radius: var(--r);
-    border: 1px solid var(--border);
-    background: var(--surface-2);
-    color: var(--text);
-    font-size: 12px;
-    cursor: pointer;
-    font-family: var(--sans);
-    transition: all .1s
-  }
-
-  .pgbtn:hover:not(:disabled) {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent)
-  }
-
-  .pgbtn:disabled {
-    opacity: .35;
-    cursor: default
-  }
-
-  .pgbtn.cur {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent)
+  /* Row serial number column */
+  .tc-sno {
+    width: 44px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    padding-right: 10px !important
   }
 
   .empty {
@@ -947,7 +981,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px;
+    padding: 9px 18px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0
@@ -1020,6 +1054,7 @@
 <header class="app-bar">
   <span class="app-logo">Formula Diff</span>
   <span class="app-file" id="hdr-file">No file loaded</span>
+  <select class="hdr-upload" id="history-select" title="Load a past comparison report" hidden></select>
   <label class="hdr-upload" title="Load a formula_comparison.json file">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
       stroke-linejoin="round">
@@ -1036,12 +1071,6 @@
 
 <!-- ─── Body ─────────────────────────────────────────────────── -->
 <div class="app-body">
-  <aside>
-    <div class="aside-head">Sheets</div>
-    <div id="sheet-list"></div>
-    <div class="aside-global" id="global-stats"></div>
-  </aside>
-
   <div class="main" id="main-drop">
 
     <!-- Empty / upload state -->
@@ -1062,6 +1091,20 @@
           </label>
         </div>
         <div id="load-status"></div>
+
+        <div class="drop-or" style="margin:16px 0 10px">— or run a new comparison —</div>
+        <div style="display:flex;flex-direction:column;gap:9px;align-items:stretch;text-align:left">
+          <label style="font-size:11.5px;color:var(--text-muted)">
+            Old workbook
+            <input type="file" id="old-xlsx-input" accept=".xlsx" style="display:block;margin-top:3px;font-size:11.5px;width:100%">
+          </label>
+          <label style="font-size:11.5px;color:var(--text-muted)">
+            New workbook
+            <input type="file" id="new-xlsx-input" accept=".xlsx" style="display:block;margin-top:3px;font-size:11.5px;width:100%">
+          </label>
+          <button class="drop-btn" id="run-compare-btn" type="button">Compare &amp; Save Report</button>
+          <div id="compare-status" style="font-size:11.5px;color:var(--text-muted);min-height:16px"></div>
+        </div>
       </div>
       <div class="drop-tip">
         <span>Sheet-by-sheet formula diff with column filtering</span>
@@ -1073,6 +1116,15 @@
     <!-- Data view -->
     <div id="data-view" hidden>
       <div id="sheet-alert"></div>
+
+      <div class="sheet-bar">
+        <div class="sheet-bar-left">
+          <span class="sb-label">Sheet</span>
+          <select id="sheet-select" class="sheet-select"></select>
+        </div>
+        <div class="sheet-bar-right" id="workbook-totals"></div>
+      </div>
+
       <div class="stats-strip" id="stats-strip"></div>
 
       <!-- View-mode bar -->
@@ -1114,14 +1166,20 @@
             <span class="flabel">Type</span>
             <div class="ttabs" id="type-tabs"></div>
           </div>
+          <div class="frow">
+            <span class="flabel">Reason</span>
+            <div class="ttabs" id="reason-tabs"></div>
+          </div>
         </div>
         <div class="twrap">
           <table>
             <thead>
               <tr>
+                <th class="tc-sno">#</th>
                 <th>Cell</th>
                 <th>Col</th>
                 <th>Type</th>
+                <th>Reason</th>
                 <th>Old Formula</th>
                 <th></th>
                 <th>New Formula</th>
@@ -1142,8 +1200,7 @@
 <script>
   // ── State ─────────────────────────────────────────────────────
   let D = null;
-  let sheet = null, col = null, type = 'all', viewMode = 'column';
-  let pg = 0; const PS = 100;
+  let sheet = null, col = null, type = 'all', reason = 'all', viewMode = 'column';
   let q = '';
   let open = new Set();
   let rowCache = {};
@@ -1216,8 +1273,8 @@
 
     for (const s of Object.keys(D.sheet_diffs)) rowCache[s] = buildRows(s);
     sheet = Object.keys(D.sheet_diffs)[0];
-    col = null; type = 'all'; viewMode = 'column'; pg = 0; open.clear(); q = '';
-    renderSidebar(); renderGlobal(); renderApp();
+    col = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); q = '';
+    renderSheetSelect(); renderGlobal(); renderApp();
   }
 
   // ── Helpers ───────────────────────────────────────────────────
@@ -1225,21 +1282,25 @@
 
   function buildRows(s) {
     const d = D.sheet_diffs[s], rows = [];
+    const addedReasons   = d.added_reasons   || {};
+    const removedReasons = d.removed_reasons || {};
     for (const [c, f] of Object.entries(d.added || {}))
-      rows.push({ cell: c, col: getCol(c), kind: 'added', formula: f });
+      rows.push({ cell: c, col: getCol(c), kind: 'added', formula: f, reason: addedReasons[c] || null });
     for (const [c, f] of Object.entries(d.removed || {}))
-      rows.push({ cell: c, col: getCol(c), kind: 'removed', formula: f });
+      rows.push({ cell: c, col: getCol(c), kind: 'removed', formula: f, reason: removedReasons[c] || null });
     for (const [c, m] of Object.entries(d.modified || {}))
       rows.push({
         cell: c, col: getCol(c),
         kind: m.change_type === 'semantic_change' ? 'semantic' : 'refshift',
         ct: m.change_type, oldF: m.old_formula, newF: m.new_formula,
         oldN: m.old_normalized, newN: m.new_normalized,
-        oldCell:   m.old_cell    || null,
-        alignedBy: m.aligned_by || null,
+        reason: m.reason || null,
+        alignedCell: m.aligned_old_cell       || null,
+        alignedF:    m.aligned_old_formula    || null,
+        alignedN:    m.aligned_old_normalized || null,
       });
     for (const c of (d.unchanged || []))
-      rows.push({ cell: c, col: getCol(c), kind: 'unchanged' });
+      rows.push({ cell: c, col: getCol(c), kind: 'unchanged', reason: null });
     rows.sort((a, b) => {
       if (a.col !== b.col) return a.col.localeCompare(b.col);
       return (parseInt(a.cell.replace(/[A-Z]+/, '')) || 0) - (parseInt(b.cell.replace(/[A-Z]+/, '')) || 0);
@@ -1258,9 +1319,12 @@
     };
   }
 
+  function reasonKey(r) { return r.reason ? r.reason.type : 'none'; }
+
   function filteredRows() {
     return (rowCache[sheet] || []).filter(r => {
       if (type !== 'all' && r.kind !== type) return false;
+      if (reason !== 'all' && reasonKey(r) !== reason) return false;
       if (col && r.col !== col) return false;
       if (q) {
         const h = [r.cell, r.formula, r.oldF, r.newF].filter(Boolean).join(' ').toLowerCase();
@@ -1271,22 +1335,17 @@
   }
 
   // ── Renderers ─────────────────────────────────────────────────
-  function renderSidebar() {
-    const el = document.getElementById('sheet-list');
+  function renderSheetSelect() {
+    const el = document.getElementById('sheet-select');
     el.innerHTML = Object.keys(D.sheet_diffs).map(s => {
       const st = stats(s);
       const total = st.added + st.removed + st.semantic + st.refshift;
-      return `<button class="sheet-btn${s === sheet ? ' active' : ''}" data-s="${x(s)}">
-      <span class="sname">${x(s)}</span>
-      <span class="sbadge">${total.toLocaleString()}</span>
-    </button>`;
+      return `<option value="${x(s)}"${s === sheet ? ' selected' : ''}>${x(s)}  (${total.toLocaleString()})</option>`;
     }).join('');
-    el.querySelectorAll('.sheet-btn').forEach(b => {
-      b.onclick = () => {
-        sheet = b.dataset.s; col = null; type = 'all'; viewMode = 'column'; pg = 0; open.clear();
-        renderSidebar(); renderApp();
-      };
-    });
+    el.onchange = e => {
+      sheet = e.target.value; col = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear();
+      renderApp();
+    };
   }
 
   function renderGlobal() {
@@ -1295,13 +1354,13 @@
       const st = stats(s); tA += st.added; tR += st.removed; tS += st.semantic; tF += st.refshift;
     }
     const sA = (D.sheets_added || []).length, sR = (D.sheets_removed || []).length;
-    document.getElementById('global-stats').innerHTML =
-      `<div class="gstat"><span>Total added</span><span>${tA.toLocaleString()}</span></div>
-     <div class="gstat"><span>Total removed</span><span>${tR.toLocaleString()}</span></div>
-     <div class="gstat"><span>Semantic Δ</span><span>${tS.toLocaleString()}</span></div>
-     <div class="gstat"><span>Ref shifts</span><span>${tF.toLocaleString()}</span></div>
-     ${sA ? `<div class="gstat" style="color:var(--c-added)"><span>Sheets added</span><span>${sA}</span></div>` : ''}
-     ${sR ? `<div class="gstat" style="color:var(--c-removed)"><span>Sheets removed</span><span>${sR}</span></div>` : ''}`;
+    document.getElementById('workbook-totals').innerHTML =
+      `<span class="wb-stat wa">Workbook added <b>${tA.toLocaleString()}</b></span>
+       <span class="wb-stat wr">removed <b>${tR.toLocaleString()}</b></span>
+       <span class="wb-stat ws">semantic <b>${tS.toLocaleString()}</b></span>
+       <span class="wb-stat wf">ref shift <b>${tF.toLocaleString()}</b></span>
+       ${sA ? `<span class="wb-stat wa">sheets added <b>${sA}</b></span>` : ''}
+       ${sR ? `<span class="wb-stat wr">sheets removed <b>${sR}</b></span>` : ''}`;
   }
 
   function renderApp() {
@@ -1316,7 +1375,7 @@
       document.getElementById('col-view-wrap').hidden = true;
       document.getElementById('cell-view-wrap').hidden = false;
       document.getElementById('back-to-cols').hidden = false;
-      renderCols(); renderTypeTabs(); renderTable();
+      renderCols(); renderTypeTabs(); renderReasonTabs(); renderTable();
     }
   }
 
@@ -1325,9 +1384,9 @@
     document.getElementById('view-toggle').innerHTML =
       `<button class="vtab${viewMode === 'column' ? ' on' : ''}" id="vt-col">Column</button>` +
       `<button class="vtab${viewMode === 'cell' ? ' on' : ''}" id="vt-cell">Cell</button>`;
-    document.getElementById('vt-col').onclick = () => { viewMode = 'column'; col = null; type = 'all'; renderApp(); };
+    document.getElementById('vt-col').onclick = () => { viewMode = 'column'; col = null; type = 'all'; reason = 'all'; renderApp(); };
     document.getElementById('vt-cell').onclick = () => { viewMode = 'cell'; col = null; renderApp(); };
-    document.getElementById('back-to-cols').onclick = () => { viewMode = 'column'; col = null; type = 'all'; renderApp(); };
+    document.getElementById('back-to-cols').onclick = () => { viewMode = 'column'; col = null; type = 'all'; reason = 'all'; renderApp(); };
   }
 
   // ── Column view ───────────────────────────────────────────────
@@ -1365,12 +1424,30 @@
     const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
     const sortCols = arr => arr.sort((a, b) =>
       a.length !== b.length ? a.length - b.length : a.localeCompare(b));
-    const addedCols   = sortCols(Object.keys(mapNew).filter(c => !(c in mapOld)));
-    const removedCols = sortCols(Object.keys(mapOld).filter(c => !(c in mapNew)));
+
+    // Compare by header NAME, not raw letter — a column that kept its name but
+    // shifted letter (because another column was inserted/removed earlier in
+    // the row) is "moved", not "added" + "removed".
+    const oldNames = new Set(Object.values(mapOld).filter(Boolean));
+    const newNames = new Set(Object.values(mapNew).filter(Boolean));
+    const oldLetterByName = {};
+    for (const [c, n] of Object.entries(mapOld)) if (n) oldLetterByName[n] = c;
+
+    const addedCols = sortCols(Object.entries(mapNew)
+      .filter(([, n]) => n && !oldNames.has(n)).map(([c]) => c));
+    const removedCols = sortCols(Object.entries(mapOld)
+      .filter(([, n]) => n && !newNames.has(n)).map(([c]) => c));
+    const movedCols = Object.entries(mapNew)
+      .filter(([c, n]) => n && oldLetterByName[n] && oldLetterByName[n] !== c)
+      .map(([c, n]) => ({ from: oldLetterByName[n], to: c, name: n }))
+      .sort((a, b) => a.to.length !== b.to.length ? a.to.length - b.to.length : a.to.localeCompare(b.to));
+    const movedToLetters = new Set(movedCols.map(m => m.to));
+
     const isNew = c => addedCols.includes(c);
     const isDel = c => removedCols.includes(c);
+    const isMoved = c => movedToLetters.has(c);
 
-    // Banner: new / removed column headers
+    // Banner: new / removed / moved column headers
     const bannerEl = document.getElementById('added-cols-banner');
     let bannerHTML = '';
     if (addedCols.length) {
@@ -1389,6 +1466,14 @@
             <span class="tag-letter">${x(c)}</span>${x(mapOld[c])}
           </span>`).join('')}</div></div>`;
     }
+    if (movedCols.length) {
+      bannerHTML += `<div class="col-hdr-section moved" style="${addedCols.length || removedCols.length ? 'margin-top:10px' : ''}">
+        <div class="col-hdr-section-label">Columns Moved (${movedCols.length})</div>
+        <div class="col-hdr-tags">${movedCols.map(m =>
+          `<span class="col-hdr-tag" title="${x(m.name)}">
+            <span class="tag-letter">${x(m.from)} → ${x(m.to)}</span>${x(m.name)}
+          </span>`).join('')}</div></div>`;
+    }
     bannerEl.innerHTML = bannerHTML;
 
     // Table
@@ -1400,7 +1485,8 @@
           const delta = r.added + r.removed + r.semantic + r.refshift;
           const fmt   = n => n ? n.toLocaleString() : dash;
           const badge = isNew(r.col) ? '<span class="badge-new">NEW</span>'
-                      : isDel(r.col) ? '<span class="badge-del">DEL</span>' : '';
+                      : isDel(r.col) ? '<span class="badge-del">DEL</span>'
+                      : isMoved(r.col) ? '<span class="badge-moved">MOVED</span>' : '';
           return `<tr class="col-row" data-col="${x(r.col)}">
             <td class="tc-ref" title="${x(nm || r.col)}">${x(r.col)}${badge}</td>
             <td class="col-name">${x(nm)}</td>
@@ -1418,7 +1504,7 @@
 
     document.getElementById('col-tbody').querySelectorAll('.col-row').forEach(tr => {
       tr.onclick = () => {
-        col = tr.dataset.col; viewMode = 'cell'; type = 'all'; pg = 0; open.clear();
+        col = tr.dataset.col; viewMode = 'cell'; type = 'all'; reason = 'all'; open.clear();
         renderApp();
       };
     });
@@ -1434,24 +1520,36 @@
     <div class="scard su"><div class="snum">${s.unchanged.toLocaleString()}</div><div class="slabel">Unchanged</div></div>`;
   }
 
+  function colStatsLabel(s) {
+    const parts = [];
+    if (s.added)     parts.push(`Added: ${s.added}`);
+    if (s.removed)   parts.push(`Removed: ${s.removed}`);
+    if (s.semantic)  parts.push(`Semantic: ${s.semantic}`);
+    if (s.refshift)  parts.push(`Ref Shift: ${s.refshift}`);
+    if (s.unchanged) parts.push(`Unchanged: ${s.unchanged}`);
+    return parts.join('  ') || 'no changes';
+  }
+
   function renderCols() {
-    const rows = rowCache[sheet] || [];
-    const cols = [...new Set(rows.map(r => r.col))].sort((a, b) => {
-      if (a.length !== b.length) return a.length - b.length;
-      return a.localeCompare(b);
-    });
+    const colRows = buildColRows(sheet);
+    const totals = colRows.reduce((a, s) => {
+      a.added += s.added; a.removed += s.removed; a.semantic += s.semantic;
+      a.refshift += s.refshift; a.unchanged += s.unchanged;
+      return a;
+    }, { added: 0, removed: 0, semantic: 0, refshift: 0, unchanged: 0 });
+
     const el = document.getElementById('col-chips');
-    el.innerHTML = `<button class="chip${!col ? ' on' : ''}" data-c="">All</button>` +
-      cols.map(c => {
-        const nm = colName(c, sheet);
-        const inner = nm
-          ? `<span class="chip-letter">${x(c)}</span><span class="chip-name">${x(nm)}</span>`
-          : x(c);
-        return `<button class="chip${col === c ? ' on' : ''}" data-c="${x(c)}" title="${x(nm || c)}">${inner}</button>`;
-      }).join('');
-    el.querySelectorAll('.chip').forEach(b => {
-      b.onclick = () => { col = b.dataset.c || null; pg = 0; open.clear(); renderCols(); renderTypeTabs(); renderTable(); };
-    });
+    el.innerHTML = `<select class="col-select" id="col-select">
+      <option value="">All columns  —  (${x(colStatsLabel(totals))})</option>
+      ${colRows.map(s => {
+        const nm = colName(s.col, sheet);
+        const label = nm ? `${s.col}  -  ${nm}` : s.col;
+        return `<option value="${x(s.col)}"${col === s.col ? ' selected' : ''}>${x(label)}  —  (${x(colStatsLabel(s))})</option>`;
+      }).join('')}
+    </select>`;
+    document.getElementById('col-select').onchange = e => {
+      col = e.target.value || null; open.clear(); renderCols(); renderTypeTabs(); renderReasonTabs(); renderTable();
+    };
   }
 
   function renderTypeTabs() {
@@ -1470,30 +1568,78 @@
       ${t.lbl}<span class="tc">${cnt(t.id).toLocaleString()}</span>
     </button>`).join('');
     document.getElementById('type-tabs').querySelectorAll('.ttab').forEach(b => {
-      b.onclick = () => { type = b.dataset.t; pg = 0; open.clear(); renderTypeTabs(); renderTable(); };
+      b.onclick = () => { type = b.dataset.t; open.clear(); renderTypeTabs(); renderReasonTabs(); renderTable(); };
+    });
+  }
+
+  // ── Reason tabs — scoped by the current column + type, so each Type
+  //    selection shows the breakdown of reasons within it ────────────────
+  const REASON_META = {
+    row_added:                        { label: 'Row Added',              cls: 'rt-row_added' },
+    row_removed:                      { label: 'Row Removed',            cls: 'rt-row_removed' },
+    column_added:                     { label: 'Column Added',           cls: 'rt-column_added' },
+    column_removed:                   { label: 'Column Removed',         cls: 'rt-column_removed' },
+    column_shifted:                   { label: 'Column Shifted',         cls: 'rt-column_shifted' },
+    column_shifted_and_logic_changed: { label: 'Shifted + Logic Changed', cls: 'rt-column_shifted_and_logic_changed' },
+    content_added:                    { label: 'Formula Added',          cls: 'rt-content' },
+    content_removed:                  { label: 'Formula Removed',        cls: 'rt-content' },
+    none:                             { label: 'No Reason',              cls: 'rt-none' },
+  };
+
+  function renderReasonTabs() {
+    const colBase = col ? (rowCache[sheet] || []).filter(r => r.col === col) : rowCache[sheet] || [];
+    const base = type === 'all' ? colBase : colBase.filter(r => r.kind === type);
+
+    const counts = {};
+    for (const r of base) {
+      const k = reasonKey(r);
+      counts[k] = (counts[k] || 0) + 1;
+    }
+    const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    const el = document.getElementById('reason-tabs');
+
+    if (!base.length) { el.innerHTML = ''; return; }
+
+    const allTab = `<button class="ttab${reason === 'all' ? ' on' : ''}" data-r="all">
+      All<span class="tc">${base.length.toLocaleString()}</span>
+    </button>`;
+    const restTabs = keys.map(k => {
+      const meta = REASON_META[k] || { label: k, cls: '' };
+      return `<button class="ttab ${meta.cls}${reason === k ? ' on' : ''}" data-r="${x(k)}">
+        ${x(meta.label)}<span class="tc">${counts[k].toLocaleString()}</span>
+      </button>`;
+    }).join('');
+
+    el.innerHTML = allTab + restTabs;
+    el.querySelectorAll('.ttab').forEach(b => {
+      b.onclick = () => { reason = b.dataset.r; open.clear(); renderReasonTabs(); renderTable(); };
     });
   }
 
   function renderTable() {
     const rows = filteredRows(), total = rows.length;
-    const slice = rows.slice(pg * PS, (pg + 1) * PS);
     const tbody = document.getElementById('tbody');
     if (!total) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">No results match the current filters.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="empty">No results match the current filters.</td></tr>`;
     } else {
-      tbody.innerHTML = slice.flatMap(r => {
+      tbody.innerHTML = rows.flatMap((r, i) => {
         const id = sheet + '§' + r.cell, isOpen = open.has(id);
-        return isOpen ? [rowHtml(r, id, true), expandHtml(r)] : [rowHtml(r, id, false)];
+        return isOpen ? [rowHtml(r, id, isOpen, i + 1), expandHtml(r)] : [rowHtml(r, id, isOpen, i + 1)];
       }).join('');
       tbody.querySelectorAll('tr[data-id]').forEach(tr => {
         tr.onclick = () => { const id = tr.dataset.id; open.has(id) ? open.delete(id) : open.add(id); renderTable(); };
       });
     }
     document.querySelector('.twrap').scrollTop = 0;
-    renderPg(total);
+    renderSummary(total);
   }
 
-  function rowHtml(r, id, isOpen) {
+  function reasonBadge(reason) {
+    if (!reason) return '<span style="opacity:.25">—</span>';
+    return `<span class="reason-tag rt-${x(reason.type)}" title="${x(reason.label)}">${x(reason.label)}</span>`;
+  }
+
+  function rowHtml(r, id, isOpen, sno) {
     const cls = `k-${r.kind}${isOpen ? ' xopen' : ''}`;
     const tog = `<span style="font-size:9px">${isOpen ? '▲' : '▼'}</span>`;
     let oldF = '', newF = '', arr = '';
@@ -1501,13 +1647,13 @@
     else if (r.kind === 'removed') { oldF = `<span class="ftext">${x(r.formula)}</span>`; }
     else if (r.kind === 'unchanged') { oldF = `<span class="ftext" style="color:var(--text-muted);font-style:italic">unchanged</span>`; }
     else { oldF = `<span class="ftext">${x(r.oldF)}</span>`; newF = `<span class="ftext">${x(r.newF)}</span>`; arr = '→'; }
-    const cellLabel = r.oldCell && r.oldCell !== r.cell
-      ? `<span style="display:block;font-size:9.5px;color:var(--text-muted);line-height:1.2">${x(r.oldCell)}</span>${x(r.cell)}`
-      : x(r.cell);
+    const nm = colName(r.col, sheet);
     return `<tr class="${cls}" data-id="${x(id)}">
-    <td class="tc-ref">${cellLabel}</td>
-    <td class="tc-col">${x(r.col)}</td>
+    <td class="tc-sno">${sno.toLocaleString()}</td>
+    <td class="tc-ref">${x(r.cell)}</td>
+    <td class="tc-col" title="${x(nm || r.col)}">${x(r.col)}${nm ? `<span class="col-sub">${x(nm)}</span>` : ''}</td>
     <td class="tc-type">${badge(r.kind)}</td>
+    <td class="tc-reason">${reasonBadge(r.reason)}</td>
     <td class="tc-f">${oldF}</td>
     <td class="tc-arr">${arr}</td>
     <td class="tc-f">${newF}</td>
@@ -1517,28 +1663,34 @@
 
   function expandHtml(r) {
     if (r.kind === 'unchanged')
-      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      return `<tr class="xrow"><td colspan="9"><div class="xcontent single">
       <div class="xsec"><p style="font-size:12px;color:var(--text-muted)">Formula is unchanged between versions.</p></div>
     </div></td></tr>`;
     if (r.kind === 'added')
-      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      return `<tr class="xrow"><td colspan="9"><div class="xcontent single">
       <div class="xsec"><h4>Added Formula</h4><div class="xcode">${x(r.formula)}</div></div>
+      ${r.reason ? `<div class="xsec"><h4>Reason</h4><p style="font-size:12px;color:var(--text-muted)">${x(r.reason.label)}</p></div>` : ''}
     </div></td></tr>`;
     if (r.kind === 'removed')
-      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      return `<tr class="xrow"><td colspan="9"><div class="xcontent single">
       <div class="xsec"><h4>Removed Formula</h4><div class="xcode">${x(r.formula)}</div></div>
+      ${r.reason ? `<div class="xsec"><h4>Reason</h4><p style="font-size:12px;color:var(--text-muted)">${x(r.reason.label)}</p></div>` : ''}
     </div></td></tr>`;
-    const metaLine = (() => {
-      const parts = [];
-      if (r.oldCell && r.oldCell !== r.cell)
-        parts.push(`Row moved: <span style="font-family:var(--mono)">${x(r.oldCell)} → ${x(r.cell)}</span>`);
-      if (r.alignedBy)
-        parts.push(`Aligned by: <strong>${x(r.alignedBy)}</strong>`);
-      return parts.length
-        ? `<div style="margin-top:10px;grid-column:1/-1;font-size:11px;color:var(--text-muted)">${parts.join(' &nbsp;·&nbsp; ')}</div>`
-        : '';
-    })();
-    return `<tr class="xrow"><td colspan="7"><div class="xcontent">
+    const metaLine = r.reason
+      ? `<div style="margin-top:10px;grid-column:1/-1;font-size:11px;color:var(--text-muted)">Reason: <strong>${x(r.reason.label)}</strong></div>`
+      : '';
+    // When this column shifted letters, show what was at its PREVIOUS
+    // position too — that's the pair actually compared to decide "logic
+    // unchanged" vs "logic also changed", so a user can verify it directly
+    // instead of just trusting the reason label.
+    const alignedSection = r.alignedF
+      ? `<div class="xsec" style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)">
+        <h4>Formula previously at ${x(r.alignedCell)} <span style="text-transform:none;font-weight:400">(same business column, before the shift — this is what's actually compared against New Formula)</span></h4>
+        <div class="xcode">${x(r.alignedF)}</div>
+        ${r.alignedN ? `<h4>Normalized</h4><div class="xcode norm">${x(r.alignedN)}</div>` : ''}
+      </div>`
+      : '';
+    return `<tr class="xrow"><td colspan="9"><div class="xcontent">
     <div class="xsec">
       <h4>Old Formula</h4><div class="xcode">${x(r.oldF)}</div>
       ${r.oldN ? `<h4>Old Normalized</h4><div class="xcode norm">${x(r.oldN)}</div>` : ''}
@@ -1548,6 +1700,7 @@
       ${r.newN ? `<h4>New Normalized</h4><div class="xcode norm">${x(r.newN)}</div>` : ''}
     </div>
     ${metaLine}
+    ${alignedSection}
   </div></td></tr>`;
   }
 
@@ -1560,31 +1713,69 @@
     return `<span class="badge ${c}">${l}</span>`;
   }
 
-  function renderPg(total) {
-    if (!total) { document.getElementById('pgbar').innerHTML = ''; return; }
-    const pages = Math.ceil(total / PS), s = pg * PS + 1, e = Math.min((pg + 1) * PS, total);
-    let nums = '';
-    for (let p = Math.max(0, pg - 2); p < Math.min(pages, pg + 3); p++)
-      nums += `<button class="pgbtn${p === pg ? ' cur' : ''}" data-p="${p}">${p + 1}</button>`;
-    document.getElementById('pgbar').innerHTML =
-      `<span class="pginfo">${s.toLocaleString()}–${e.toLocaleString()} of ${total.toLocaleString()}</span>
-     <div class="pgbtns">
-       <button class="pgbtn" data-p="0" ${pg === 0 ? 'disabled' : ''}>«</button>
-       <button class="pgbtn" data-p="${pg - 1}" ${pg === 0 ? 'disabled' : ''}>‹</button>
-       ${nums}
-       <button class="pgbtn" data-p="${pg + 1}" ${pg >= pages - 1 ? 'disabled' : ''}>›</button>
-       <button class="pgbtn" data-p="${pages - 1}" ${pg >= pages - 1 ? 'disabled' : ''}>»</button>
-     </div>`;
-    document.getElementById('pgbar').querySelectorAll('.pgbtn:not([disabled])').forEach(b => {
-      b.onclick = () => { pg = parseInt(b.dataset.p); open.clear(); renderTable(); };
-    });
+  function renderSummary(total) {
+    const bar = document.getElementById('pgbar');
+    bar.innerHTML = total
+      ? `<span class="pginfo">Showing all ${total.toLocaleString()} record${total === 1 ? '' : 's'}</span>`
+      : `<span class="pginfo">No results</span>`;
   }
 
   // ── Search ────────────────────────────────────────────────────
   document.getElementById('search').addEventListener('input', e => {
-    q = e.target.value.trim().toLowerCase(); pg = 0; open.clear();
-    renderTypeTabs(); renderTable();
+    q = e.target.value.trim().toLowerCase(); open.clear();
+    renderTypeTabs(); renderReasonTabs(); renderTable();
   });
+
+  // ── Backend integration (server.py) ────────────────────────────
+  async function loadHistory() {
+    const sel = document.getElementById('history-select');
+    try {
+      const res = await fetch('/api/reports');
+      if (!res.ok) throw new Error();
+      const list = await res.json();
+      if (!list.length) { sel.hidden = true; return; }
+      sel.hidden = false;
+      sel.innerHTML = `<option value="">History…</option>` + list.map(r =>
+        `<option value="${r.version}">v${r.version} — ${x(r.old_file || '?')} → ${x(r.new_file || '?')}</option>`
+      ).join('');
+    } catch {
+      sel.hidden = true; // backend not running (e.g. viewer opened as a plain file) – ignore
+    }
+  }
+
+  document.getElementById('history-select').addEventListener('change', async e => {
+    const v = e.target.value;
+    if (!v) return;
+    const res = await fetch(`/api/reports/${v}`);
+    if (!res.ok) return;
+    D = await res.json();
+    init(`comparison_report_${v}.json`);
+  });
+
+  document.getElementById('run-compare-btn').addEventListener('click', async () => {
+    const oldF = document.getElementById('old-xlsx-input').files[0];
+    const newF = document.getElementById('new-xlsx-input').files[0];
+    const status = document.getElementById('compare-status');
+    if (!oldF || !newF) { status.textContent = 'Choose both an old and a new workbook first.'; return; }
+
+    status.textContent = 'Comparing… this can take a while for large workbooks.';
+    const fd = new FormData();
+    fd.append('old_file', oldF);
+    fd.append('new_file', newF);
+    try {
+      const res = await fetch('/api/compare', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) { status.textContent = 'Error: ' + (data.error || res.statusText); return; }
+      status.textContent = `Saved as ${data.file}`;
+      D = data.report;
+      init(data.file);
+      loadHistory();
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message + ' (is server.py running?)';
+    }
+  });
+
+  loadHistory();
 
   // ── Escape ────────────────────────────────────────────────────
   function x(s) {

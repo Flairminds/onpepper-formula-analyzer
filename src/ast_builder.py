@@ -60,7 +60,7 @@ class _Stream:
     def is_infix(self, *values):
         """True if the current token is an infix operator matching one of values."""
         tok = self.current
-        return tok is not None and tok.type == "OP-IN" and tok.value in values
+        return tok is not None and tok.type == "OPERATOR-INFIX" and tok.value in values
 
 
 # ─────────────────────────────────────────────────────────────
@@ -173,7 +173,7 @@ def _unary_node(stream: _Stream) -> Dict[str, Any]:
     tok = stream.current
 
     # Prefix: -A1  →  UnaryOp[-] → CellRef[A1]
-    if tok and tok.type == "OP-PRE" and tok.value == "-":
+    if tok and tok.type == "OPERATOR-PREFIX" and tok.value == "-":
         stream.advance()
         return _unary("-", _primary(stream))
 
@@ -181,7 +181,7 @@ def _unary_node(stream: _Stream) -> Dict[str, Any]:
 
     # Postfix: 50%  →  UnaryOp[%] → Number[50]
     tok = stream.current
-    if tok and tok.type == "OP-POST" and tok.value == "%":
+    if tok and tok.type == "OPERATOR-POSTFIX" and tok.value == "%":
         stream.advance()
         return _unary("%", node)
 
@@ -195,21 +195,19 @@ def _primary(stream: _Stream) -> Dict[str, Any]:
     if tok is None:
         return {"type": "ParseError", "value": "unexpected end of formula"}
 
-    # ── Function call or parenthesised group ─────────────────────────────────
-    # openpyxl gives FUNC / OPEN for both "SUM(" and standalone "("
-    # A standalone "(" has an empty name after stripping the "("
+    # ── Function call: openpyxl gives FUNC / OPEN, e.g. "SUM(", "IF(" ────────
     if tok.type == "FUNC" and tok.subtype == "OPEN":
         name = tok.value.rstrip("(").strip()
         stream.advance()                       # consume the "SUM(" token
+        return _func(name.upper(), _args(stream))
 
-        if name:
-            # Named function call: SUM, IF, VLOOKUP, …
-            return _func(name.upper(), _args(stream))
-        else:
-            # Standalone group: (expr)
-            expr = _comparison(stream)
-            _eat_close(stream)
-            return _group(expr)
+    # ── Standalone parenthesised group: (expr) ───────────────────────────────
+    # openpyxl gives PAREN / OPEN for a bare "(" (not preceded by a function name)
+    if tok.type == "PAREN" and tok.subtype == "OPEN":
+        stream.advance()                       # consume "("
+        expr = _comparison(stream)
+        _eat_close(stream)
+        return _group(expr)
 
     # ── Cell or range reference ──────────────────────────────────────────────
     if tok.type == "OPERAND" and tok.subtype == "RANGE":
@@ -282,9 +280,12 @@ def _args(stream: _Stream) -> List[Dict[str, Any]]:
 
 
 def _eat_close(stream: _Stream):
-    """Consume a FUNC CLOSE token if present (resilient — skip if missing)."""
+    """Consume a closing ')' token if present (resilient — skip if missing).
+
+    A function call's ')' tokenizes as FUNC/CLOSE; a standalone group's as PAREN/CLOSE.
+    """
     tok = stream.current
-    if tok and tok.type == "FUNC" and tok.subtype == "CLOSE":
+    if tok and tok.subtype == "CLOSE" and tok.type in ("FUNC", "PAREN"):
         stream.advance()
 
 

@@ -1,5 +1,13 @@
+"""Utilities for extracting business column mappings from Excel worksheets.
+
+The mapping is a dict of sheet name -> {column_letter: header}.
+"""
 
 import logging
+import re
+from typing import Any, Dict, Optional
+
+from openpyxl.utils import get_column_letter
 
 # Configure a simple logger for this module
 logger = logging.getLogger(__name__)
@@ -9,10 +17,28 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-from typing import Any, Dict, Optional
-from openpyxl.utils import get_column_letter
+
+# Matches cell references like A1, $B$10, AB123 (strips $ for lookup)
+_CELL_REF_RE = re.compile(r'\$?([A-Z]{1,3})\$?\d+')
+
+
 def get_business_column_mapping(workbook: Any, header_row_index: int = 9) -> Dict[str, Dict[str, str]]:
-    """Return a mapping of sheet name to column‑letter → header.
+    """Return a mapping of sheet name to column-letter -> header.
+
+    Header text that repeats within the same row — including genuinely
+    blank headers — is disambiguated by appending its 1-based occurrence
+    number among columns sharing that name, left to right: two columns both
+    literally titled "Excess" become "Excess (1)" and "Excess (2)"; blank
+    headers become "Unnamed (1)", "Unnamed (2)", etc.
+
+    The suffix is an occurrence COUNT, not the column's own letter — it
+    must stay stable even when the column's letter shifts between the old
+    and new workbook (e.g. because an unrelated column was inserted
+    earlier in the row), so that "the 2nd 'Excess' column" in the old file
+    still matches "the 2nd 'Excess' column" in the new file for shift
+    detection. Appending the column's own letter would defeat that (the
+    letter is exactly what's expected to change), making every repeated
+    column look added in one file and removed in the other.
 
     Parameters
     ----------
@@ -34,60 +60,26 @@ def get_business_column_mapping(workbook: Any, header_row_index: int = 9) -> Dic
             logger.warning(f"Failed to read header row from sheet '{sheet_name}': {e}")
             continue
 
-        col_map: Dict[str, str] = {}
-        unnamed_counter = 1
+        raw: Dict[str, str] = {}
         for idx, header in enumerate(header_row, start=1):
             col_letter = get_column_letter(idx)
             if header is None or (isinstance(header, str) and header.strip() == ""):
-                header_str = f"Unnamed{unnamed_counter}"
-                unnamed_counter += 1
+                raw[col_letter] = "Unnamed"
             else:
-                header_str = str(header).strip()
-            col_map[col_letter] = header_str
-        mapping[sheet_name] = col_map
-    return mapping
+                raw[col_letter] = str(header).strip()
 
-"""Utilities for extracting business column mappings from Excel worksheets.
+        counts: Dict[str, int] = {}
+        for name in raw.values():
+            counts[name] = counts.get(name, 0) + 1
 
-The mapping is a dict of sheet name -> {column_letter: header}.
-"""
-
-import re
-from typing import Dict, Any, Optional
-from openpyxl.utils import get_column_letter
-
-# Matches cell references like A1, $B$10, AB123 (strips $ for lookup)
-_CELL_REF_RE = re.compile(r'\$?([A-Z]{1,3})\$?\d+')
-
-
-def get_business_column_mapping(workbook: Any, header_row_index: int = 9) -> Dict[str, Dict[str, str]]:
-    """Return a mapping of sheet name to column‑letter → header.
-
-    Parameters
-    ----------
-    workbook: openpyxl.Workbook
-        The loaded workbook.
-    header_row_index: int, optional
-        The row number that contains the column names. Defaults to ``9``.
-    """
-    mapping: Dict[str, Dict[str, str]] = {}
-    for sheet_name in workbook.sheetnames:
-        sheet = workbook[sheet_name]
-        header_row = next(
-            sheet.iter_rows(min_row=header_row_index,
-                            max_row=header_row_index,
-                            values_only=True)
-        )
+        occurrence: Dict[str, int] = {}
         col_map: Dict[str, str] = {}
-        unnamed_counter = 1
-        for idx, header in enumerate(header_row, start=1):
-            col_letter = get_column_letter(idx)
-            if header is None or (isinstance(header, str) and header.strip() == ""):
-                header_str = f"Unnamed{unnamed_counter}"
-                unnamed_counter += 1
+        for col, name in raw.items():
+            if counts[name] > 1:
+                occurrence[name] = occurrence.get(name, 0) + 1
+                col_map[col] = f"{name} ({occurrence[name]})"
             else:
-                header_str = str(header).strip()
-            col_map[col_letter] = header_str
+                col_map[col] = name
         mapping[sheet_name] = col_map
     return mapping
 

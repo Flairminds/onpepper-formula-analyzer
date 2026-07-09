@@ -28,12 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), 'config', '.env'))
 
-from src.reader import load_excel_workbook
-from src.formula_extractor import extract_formulas
-from src.mapping import get_business_column_mapping
-from src.formula_normalizer import normalize_all_formulas
-from src.formula_comparator import compare_workbooks, generate_summary
-from src.semantic_comparator import batch_compare, generate_semantic_summary
+from src.compare_service import run_comparison
 # from src.math_equivalence import find_equivalent_pairs
 # from src.comparison_validator import validate_results, generate_validation_report
 
@@ -78,25 +73,30 @@ def _print_sheet_diff(sheet_name: str, diff: dict, max_diff: int = 50):
         if max_diff and total > max_diff:
             print(f"    … {total - max_diff} more (use --max-diff 0 to show all)")
 
+    added_reasons   = diff.get("added_reasons", {})
+    removed_reasons = diff.get("removed_reasons", {})
+
     # Added
     _show(
         sorted(diff["added"].items()),
         "ADDED",
-        lambda kv: print(f"    {kv[0]:>6}  +  {kv[1]}"),
+        lambda kv: print(f"    {kv[0]:>6}  +  {kv[1]}  [{added_reasons.get(kv[0], {}).get('label', '')}]"),
     )
 
     # Removed
     _show(
         sorted(diff["removed"].items()),
         "REMOVED",
-        lambda kv: print(f"    {kv[0]:>6}  -  {kv[1]}"),
+        lambda kv: print(f"    {kv[0]:>6}  -  {kv[1]}  [{removed_reasons.get(kv[0], {}).get('label', '')}]"),
     )
 
     # Modified
     def _fmt_modified(kv):
         cell, info = kv
         label = "SEMANTIC" if info["change_type"] == "semantic_change" else "REF-SHIFT"
-        print(f"    {cell:>6}  [{label}]")
+        reason = info.get("reason")
+        tag = f"  [{reason['label']}]" if reason else ""
+        print(f"    {cell:>6}  [{label}]{tag}")
         print(f"           OLD: {info['old_formula']}")
         print(f"           NEW: {info['new_formula']}")
         sem_desc = info.get("semantic_description")
@@ -146,37 +146,15 @@ def _parse_args():
 def main():
     old_path, new_path, save_path, max_diff = _parse_args()
 
-    # ── Load workbooks ────────────────────────────────────────────────────────
     print(f"Loading OLD: {os.path.basename(old_path)}")
-    wb_old = load_excel_workbook(old_path)
-
     print(f"Loading NEW: {os.path.basename(new_path)}")
-    wb_new = load_excel_workbook(new_path)
+    print("Extracting formulas, building mappings, and comparing...")
+    report = run_comparison(old_path, new_path)
 
-    # ── Extract formulas ──────────────────────────────────────────────────────
-    print("Extracting formulas...")
-    formulas_old = extract_formulas(wb_old)
-    formulas_new = extract_formulas(wb_new)
-
-    # ── Build business-name mappings ──────────────────────────────────────────
-    print("Building column mappings...")
-    mapping_old = get_business_column_mapping(wb_old)
-    mapping_new = get_business_column_mapping(wb_new)
-
-    # ── Normalize formulas (replace cell refs with business names) ────────────
-    print("Normalizing formulas...")
-    norm_old = normalize_all_formulas(formulas_old, mapping_old)
-    norm_new = normalize_all_formulas(formulas_new, mapping_new)
-
-    # ── Run raw comparison ────────────────────────────────────────────────────
-    print("Comparing (raw)...")
-    diff    = compare_workbooks(formulas_old, formulas_new, norm_old, norm_new)
-    summary = generate_summary(diff)
-
-    # ── Run semantic / business-meaning comparison ────────────────────────────
-    print("Comparing (business meaning)...")
-    semantic_results = batch_compare(formulas_old, formulas_new, mapping_old, mapping_new)
-    semantic_summary = generate_semantic_summary(semantic_results)
+    diff              = report["diff"]
+    summary           = report["summary"]
+    semantic_results  = report["semantic_diff"]
+    semantic_summary  = report["semantic_summary"]
 
     # ── Print raw diff ────────────────────────────────────────────────────────
     _print_summary(summary)
@@ -231,16 +209,6 @@ def main():
 
     # ── Optionally save full report as JSON ───────────────────────────────────
     if save_path:
-        report = {
-            "generated_at":        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "old_file":            os.path.basename(old_path),
-            "new_file":            os.path.basename(new_path),
-            "summary":             summary,
-            "column_mapping":      {"old": mapping_old, "new": mapping_new},
-            "diff":                diff,
-            "semantic_summary":    semantic_summary,
-            "semantic_diff":       semantic_results,
-        }
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
         print(f"\nFull report saved to: {save_path}")
