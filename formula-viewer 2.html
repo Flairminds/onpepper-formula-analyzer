@@ -1,0 +1,1594 @@
+<title>Formula Comparison Viewer</title>
+
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────── */
+  :root {
+    --bg: #EDF0F6;
+    --surface: #FFFFFF;
+    --surface-2: #F3F6FB;
+    --border: #CDD5E4;
+    --text: #1A2236;
+    --text-muted: #5A6880;
+    --sidebar-bg: #141C2E;
+    --sb: rgba(255, 255, 255, .06);
+    --accent: #C97924;
+    --accent-sub: rgba(201, 121, 36, .12);
+    --c-added: #1A9B68;
+    --c-removed: #C73650;
+    --c-semantic: #C97924;
+    --c-refshift: #2B82CC;
+    --c-unch: #7A8BA4;
+    --mono: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+    --r: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1120;
+      --surface: #131E30;
+      --surface-2: #1A2840;
+      --border: #253550;
+      --text: #CDD8EE;
+      --text-muted: #617090;
+      --sidebar-bg: #090E1C;
+      --accent: #E8943A;
+      --accent-sub: rgba(232, 148, 58, .12);
+      --c-added: #2FCA8A;
+      --c-removed: #E0506A;
+      --c-semantic: #E8943A;
+      --c-refshift: #4AAAE0;
+      --c-unch: #445568;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #EDF0F6;
+    --surface: #FFFFFF;
+    --surface-2: #F3F6FB;
+    --border: #CDD5E4;
+    --text: #1A2236;
+    --text-muted: #5A6880;
+    --sidebar-bg: #141C2E;
+    --accent: #C97924;
+    --accent-sub: rgba(201, 121, 36, .12);
+    --c-added: #1A9B68;
+    --c-removed: #C73650;
+    --c-semantic: #C97924;
+    --c-refshift: #2B82CC;
+    --c-unch: #7A8BA4;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0B1120;
+    --surface: #131E30;
+    --surface-2: #1A2840;
+    --border: #253550;
+    --text: #CDD8EE;
+    --text-muted: #617090;
+    --sidebar-bg: #090E1C;
+    --accent: #E8943A;
+    --accent-sub: rgba(232, 148, 58, .12);
+    --c-added: #2FCA8A;
+    --c-removed: #E0506A;
+    --c-semantic: #E8943A;
+    --c-refshift: #4AAAE0;
+    --c-unch: #445568;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+  }
+
+  [hidden] { display: none !important; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column
+  }
+
+  /* ── Header ──────────────────────────────────────────────────── */
+  .app-bar {
+    height: 46px;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--sb);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    flex-shrink: 0;
+    z-index: 10
+  }
+
+  .app-logo {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap
+  }
+
+  .app-file {
+    font-size: 11.5px;
+    color: #4A607A;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+  }
+
+  /* Compact upload button in header */
+  .hdr-upload {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: var(--r);
+    padding: 4px 11px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    color: #9AAFCA;
+    font-size: 12px;
+    font-family: var(--sans);
+    white-space: nowrap;
+    flex-shrink: 0
+  }
+
+  .hdr-upload:hover {
+    background: var(--accent-sub);
+    border-color: var(--accent);
+    color: var(--accent)
+  }
+
+  .hdr-upload svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0
+  }
+
+  .app-search {
+    background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: var(--r);
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #C0D0E4;
+    width: 210px;
+    font-family: var(--sans);
+    outline: none;
+  }
+
+  .app-search::placeholder {
+    color: #3A5070
+  }
+
+  .app-search:focus {
+    border-color: var(--accent)
+  }
+
+  .theme-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: var(--r);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5A7090;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: color .15s
+  }
+
+  .theme-btn:hover {
+    color: #C0D0E4
+  }
+
+  /* ── Body layout ─────────────────────────────────────────────── */
+  .app-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden
+  }
+
+  aside {
+    width: 214px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sb);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto
+  }
+
+  .aside-head {
+    padding: 14px 12px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #2E4460
+  }
+
+  .sheet-btn {
+    padding: 8px 10px;
+    margin: 1px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #5A7090;
+    font-size: 12.5px;
+    transition: background .12s, color .12s;
+    border: none;
+    background: transparent;
+    width: calc(100% - 16px);
+    font-family: var(--sans);
+    text-align: left
+  }
+
+  .sheet-btn:hover {
+    background: rgba(255, 255, 255, .05);
+    color: #9AAFCA
+  }
+
+  .sheet-btn.active {
+    background: var(--accent-sub);
+    color: #D0E0F4
+  }
+
+  .sheet-btn.active .sname {
+    color: var(--accent)
+  }
+
+  .sbadge {
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    background: rgba(255, 255, 255, .05);
+    color: #3A5070;
+    padding: 1px 6px;
+    border-radius: 9px;
+    flex-shrink: 0
+  }
+
+  .sheet-btn.active .sbadge {
+    background: var(--accent-sub);
+    color: var(--accent)
+  }
+
+  .aside-global {
+    padding: 12px 12px 10px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, .05)
+  }
+
+  .gstat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 2px 0;
+    color: #3A5070
+  }
+
+  .gstat span:last-child {
+    font-variant-numeric: tabular-nums;
+    color: #5A7090
+  }
+
+  /* ── Main ────────────────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0
+  }
+
+  /* Empty / drop state – sits inside .main, NOT full screen */
+  #empty-state {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px;
+    /* whole main area is a drop target */
+  }
+
+  #empty-state.drag-over {
+    background: var(--accent-sub)
+  }
+
+  #empty-state.drag-over .drop-card {
+    border-color: var(--accent)
+  }
+
+  .drop-card {
+    background: var(--surface);
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    transition: border-color .18s, background .18s;
+    cursor: pointer
+  }
+
+  .drop-card:hover {
+    border-color: var(--accent)
+  }
+
+  .drop-icon-sm {
+    width: 32px;
+    height: 32px;
+    color: var(--accent);
+    margin: 0 auto 10px;
+    display: block
+  }
+
+  .drop-title {
+    font-size: 14px;
+    font-weight: 650;
+    margin-bottom: 4px
+  }
+
+  .drop-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.6
+  }
+
+  .drop-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px
+  }
+
+  .drop-btn {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: var(--r);
+    font-size: 12.5px;
+    font-weight: 550;
+    cursor: pointer;
+    border: none;
+    font-family: var(--sans);
+    transition: opacity .15s
+  }
+
+  .drop-btn:hover {
+    opacity: .85
+  }
+
+  .drop-or {
+    font-size: 11.5px;
+    color: var(--text-muted)
+  }
+
+  #load-status {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    min-height: 16px
+  }
+
+  .drop-tip {
+    margin-top: 10px;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+    max-width: 420px;
+    width: 100%
+  }
+
+  .drop-tip span::before {
+    content: '→ ';
+    color: var(--accent)
+  }
+
+  /* ── Data view (hidden until file loaded) ───────────────────── */
+  #data-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden
+  }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0
+  }
+
+  .scard {
+    flex: 1;
+    background: var(--surface);
+    padding: 10px 14px;
+    border-top: 3px solid transparent;
+    min-width: 0;
+    cursor: default
+  }
+
+  .scard.sa {
+    border-top-color: var(--c-added)
+  }
+
+  .scard.sr {
+    border-top-color: var(--c-removed)
+  }
+
+  .scard.ss {
+    border-top-color: var(--c-semantic)
+  }
+
+  .scard.sf {
+    border-top-color: var(--c-refshift)
+  }
+
+  .scard.su {
+    border-top-color: var(--c-unch)
+  }
+
+  .snum {
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2
+  }
+
+  .scard.sa .snum {
+    color: var(--c-added)
+  }
+
+  .scard.sr .snum {
+    color: var(--c-removed)
+  }
+
+  .scard.ss .snum {
+    color: var(--c-semantic)
+  }
+
+  .scard.sf .snum {
+    color: var(--c-refshift)
+  }
+
+  .scard.su .snum {
+    color: var(--c-unch)
+  }
+
+  .slabel {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-top: 2px
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 7px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex-shrink: 0
+  }
+
+  .frow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap
+  }
+
+  .flabel {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    width: 50px;
+    flex-shrink: 0
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px
+  }
+
+  .chip {
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    transition: all .12s
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--text)
+  }
+
+  .chip.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff
+  }
+
+  .chip-letter {
+    display: block;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 11.5px;
+    line-height: 1.3
+  }
+  .chip-name {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 9px;
+    max-width: 84px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
+    line-height: 1.3;
+    margin-top: 1px
+  }
+  .chip.on .chip-name { color: rgba(255,255,255,.75) }
+  .chip:hover .chip-name { color: var(--text) }
+
+  /* ── Added / Removed column header banner ───────────────── */
+  .col-hdr-section { margin-bottom: 10px }
+  .col-hdr-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 6px
+  }
+  .col-hdr-section.added  .col-hdr-section-label { color: var(--c-added) }
+  .col-hdr-section.removed .col-hdr-section-label { color: var(--c-removed) }
+  .col-hdr-tags { display: flex; flex-wrap: wrap; gap: 5px }
+  .col-hdr-tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    border: 1px solid;
+    color: var(--text)
+  }
+  .added  .col-hdr-tag { border-color: var(--c-added) }
+  .removed .col-hdr-tag { border-color: var(--c-removed) }
+  .col-hdr-tag .tag-letter { font-family: var(--mono); font-weight: 700; font-size: 11px }
+  .added   .col-hdr-tag .tag-letter { color: var(--c-added) }
+  .removed .col-hdr-tag .tag-letter { color: var(--c-removed) }
+  .badge-new, .badge-del {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 1px 4px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 4px;
+    line-height: 1.5;
+    border: 1px solid
+  }
+  .badge-new { color: var(--c-added);   border-color: var(--c-added) }
+  .badge-del { color: var(--c-removed); border-color: var(--c-removed) }
+
+  .ttabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px
+  }
+
+  .ttab {
+    padding: 3px 11px;
+    border-radius: var(--r);
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    transition: all .12s;
+    white-space: nowrap
+  }
+
+  .ttab:hover {
+    color: var(--text);
+    background: var(--surface-2)
+  }
+
+  .ttab.on {
+    border-color: var(--border);
+    color: var(--text);
+    background: var(--surface-2)
+  }
+
+  .ttab.on.ta {
+    border-color: var(--c-added);
+    color: var(--c-added)
+  }
+
+  .ttab.on.tr {
+    border-color: var(--c-removed);
+    color: var(--c-removed)
+  }
+
+  .ttab.on.ts {
+    border-color: var(--c-semantic);
+    color: var(--c-semantic)
+  }
+
+  .ttab.on.tf {
+    border-color: var(--c-refshift);
+    color: var(--c-refshift)
+  }
+
+  .ttab.on.tu {
+    border-color: var(--c-unch);
+    color: var(--c-unch)
+  }
+
+  .tc {
+    font-size: 10px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 0 5px;
+    margin-left: 3px;
+    font-variant-numeric: tabular-nums;
+    vertical-align: middle
+  }
+
+  /* Table */
+  .twrap {
+    flex: 1;
+    overflow: auto;
+    background: var(--bg)
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    z-index: 3
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background .08s
+  }
+
+  tbody tr:hover {
+    background: var(--surface-2)
+  }
+
+  tbody tr.xopen {
+    background: var(--surface)
+  }
+
+  tr.k-added {
+    border-left-color: var(--c-added)
+  }
+
+  tr.k-removed {
+    border-left-color: var(--c-removed)
+  }
+
+  tr.k-semantic {
+    border-left-color: var(--c-semantic)
+  }
+
+  tr.k-refshift {
+    border-left-color: var(--c-refshift)
+  }
+
+  tr.k-unchanged {
+    border-left-color: var(--c-unch)
+  }
+
+  tbody td {
+    padding: 6px 10px;
+    vertical-align: middle
+  }
+
+  td.tc-ref {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    width: 58px;
+    white-space: nowrap
+  }
+
+  td.tc-col {
+    width: 36px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 11px
+  }
+
+  td.tc-type {
+    width: 90px;
+    white-space: nowrap
+  }
+
+  td.tc-f {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    max-width: 0;
+    overflow: hidden
+  }
+
+  .ftext {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+  }
+
+  td.tc-arr {
+    width: 16px;
+    padding: 0 2px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: center
+  }
+
+  td.tc-tog {
+    width: 22px;
+    padding: 0 6px 0 0;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 9px
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap
+  }
+
+  .ba {
+    background: rgba(26, 155, 104, .13);
+    color: var(--c-added)
+  }
+
+  .br {
+    background: rgba(199, 54, 80, .13);
+    color: var(--c-removed)
+  }
+
+  .bs {
+    background: rgba(201, 121, 36, .13);
+    color: var(--c-semantic)
+  }
+
+  .bf {
+    background: rgba(43, 130, 204, .13);
+    color: var(--c-refshift)
+  }
+
+  .bu {
+    background: rgba(122, 139, 164, .1);
+    color: var(--c-unch)
+  }
+
+  /* Expand rows */
+  .xrow td {
+    padding: 0;
+    cursor: default;
+    background: var(--surface-2)
+  }
+
+  .xrow td:first-child {
+    border-left: 3px solid var(--border)
+  }
+
+  .xcontent {
+    padding: 10px 14px 14px 58px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px
+  }
+
+  .xcontent.single {
+    grid-template-columns: 1fr
+  }
+
+  .xsec h4 {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text-muted);
+    margin-bottom: 5px
+  }
+
+  .xsec h4+h4 {
+    margin-top: 8px
+  }
+
+  .xcode {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 9px;
+    word-break: break-all;
+    line-height: 1.7
+  }
+
+  .xcode.norm {
+    color: var(--text-muted);
+    font-style: italic
+  }
+
+  /* Pagination */
+  .pgbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0
+  }
+
+  .pginfo {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums
+  }
+
+  .pgbtns {
+    display: flex;
+    gap: 3px
+  }
+
+  .pgbtn {
+    padding: 3px 9px;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all .1s
+  }
+
+  .pgbtn:hover:not(:disabled) {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent)
+  }
+
+  .pgbtn:disabled {
+    opacity: .35;
+    cursor: default
+  }
+
+  .pgbtn.cur {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent)
+  }
+
+  .empty {
+    text-align: center;
+    padding: 56px 16px;
+    color: var(--text-muted);
+    font-size: 13px
+  }
+
+  /* ── View-mode bar ───────────────────────────────────────────── */
+  .view-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0
+  }
+
+  .vtab {
+    padding: 3px 12px;
+    border-radius: var(--r);
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    transition: all .12s
+  }
+
+  .vtab:hover { color: var(--text) }
+
+  .vtab.on {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent)
+  }
+
+  .back-btn {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: var(--r);
+    font-family: var(--sans);
+    transition: color .12s
+  }
+
+  .back-btn:hover { color: var(--accent) }
+
+  /* ── Column-view table ───────────────────────────────────────── */
+  .col-name {
+    color: var(--text-muted);
+    font-size: 12px;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+  }
+
+  .col-cnt {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    padding-right: 18px !important;
+    font-size: 12px;
+    white-space: nowrap;
+    width: 76px
+  }
+
+  .col-cnt.ca { color: var(--c-added) }
+  .col-cnt.cr { color: var(--c-removed) }
+  .col-cnt.cs { color: var(--c-semantic) }
+  .col-cnt.cf { color: var(--c-refshift) }
+  .col-cnt.cu { color: var(--c-unch) }
+
+  tbody tr.col-row { cursor: pointer }
+  tbody tr.col-row:hover { background: var(--surface-2) }
+</style>
+
+<!-- ─── Header ───────────────────────────────────────────────── -->
+<header class="app-bar">
+  <span class="app-logo">Formula Diff</span>
+  <span class="app-file" id="hdr-file">No file loaded</span>
+  <label class="hdr-upload" title="Load a formula_comparison.json file">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" />
+      <polyline points="5 6 8 3 11 6" />
+      <line x1="8" y1="3" x2="8" y2="10" />
+    </svg>
+    Open JSON
+    <input type="file" id="file-input" accept=".json" style="display:none">
+  </label>
+  <input class="app-search" id="search" type="search" placeholder="Search cells or formulas…" disabled>
+  <button class="theme-btn" id="theme-btn" title="Toggle theme">☀</button>
+</header>
+
+<!-- ─── Body ─────────────────────────────────────────────────── -->
+<div class="app-body">
+  <aside>
+    <div class="aside-head">Sheets</div>
+    <div id="sheet-list"></div>
+    <div class="aside-global" id="global-stats"></div>
+  </aside>
+
+  <div class="main" id="main-drop">
+
+    <!-- Empty / upload state -->
+    <div id="empty-state">
+      <div class="drop-card" id="drop-card">
+        <!-- <svg class="drop-icon-sm" viewBox="0 0 32 32" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="20" height="28" rx="2"/>
+          <path d="M14 2v9h10"/>
+          <polyline points="11 22 16 27 21 22"/>
+          <line x1="16" y1="17" x2="16" y2="27"/>
+        </svg> -->
+        <div class="drop-title">Load a comparison report</div>
+        <!-- <div class="drop-hint">Drag &amp; drop <strong>formula_comparison.json</strong> anywhere,<br>or use the button above to choose a file</div> -->
+        <div class="drop-row">
+          <label class="drop-btn">
+            Open File <input type="file" id="file-input2" accept=".json" style="display:none">
+          </label>
+        </div>
+        <div id="load-status"></div>
+      </div>
+      <div class="drop-tip">
+        <span>Sheet-by-sheet formula diff with column filtering</span>
+        <span>Semantic changes vs reference-only shifts</span>
+        <span>Full formula + normalized business-name view on expand</span>
+      </div>
+    </div>
+
+    <!-- Data view -->
+    <div id="data-view" hidden>
+      <div id="sheet-alert"></div>
+      <div class="stats-strip" id="stats-strip"></div>
+
+      <!-- View-mode bar -->
+      <div class="view-bar">
+        <div id="view-toggle"></div>
+        <button id="back-to-cols" class="back-btn" hidden>&#8592; All Columns</button>
+      </div>
+
+      <!-- Column view -->
+      <div id="col-view-wrap">
+        <div id="added-cols-banner" style="margin-bottom:4px"></div>
+        <div class="twrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:52px">Col</th>
+                <th>Name</th>
+                <th class="col-cnt" style="width:76px">Added</th>
+                <th class="col-cnt" style="width:76px">Removed</th>
+                <th class="col-cnt" style="width:76px">Semantic</th>
+                <th class="col-cnt" style="width:76px">Ref Shift</th>
+                <th class="col-cnt" style="width:82px">Unchanged</th>
+                <th class="col-cnt" style="width:76px">Total &#916;</th>
+              </tr>
+            </thead>
+            <tbody id="col-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cell view -->
+      <div id="cell-view-wrap" hidden>
+        <div class="filter-bar">
+          <div class="frow">
+            <span class="flabel">Column</span>
+            <div class="chips" id="col-chips"></div>
+          </div>
+          <div class="frow">
+            <span class="flabel">Type</span>
+            <div class="ttabs" id="type-tabs"></div>
+          </div>
+        </div>
+        <div class="twrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cell</th>
+                <th>Col</th>
+                <th>Type</th>
+                <th>Old Formula</th>
+                <th></th>
+                <th>New Formula</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="pgbar" id="pgbar"></div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────────
+  let D = null;
+  let sheet = null, col = null, type = 'all', viewMode = 'column';
+  let pg = 0; const PS = 100;
+  let q = '';
+  let open = new Set();
+  let rowCache = {};
+
+  // ── Theme ─────────────────────────────────────────────────────
+  let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  function setTheme(t) {
+    theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('theme-btn').textContent = t === 'dark' ? '☀' : '🌙';
+  }
+  document.getElementById('theme-btn').onclick = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+  setTheme(theme);
+
+  // ── Drop zone: whole main area + card ─────────────────────────
+  const mainDrop = document.getElementById('main-drop');
+  const emptyState = document.getElementById('empty-state');
+
+  mainDrop.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (!D) emptyState.classList.add('drag-over');
+  });
+  mainDrop.addEventListener('dragleave', e => {
+    if (!e.relatedTarget || !mainDrop.contains(e.relatedTarget))
+      emptyState.classList.remove('drag-over');
+  });
+  mainDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    emptyState.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);
+  });
+
+  // Header file input
+  document.getElementById('file-input').addEventListener('change', e => {
+    if (e.target.files[0]) load(e.target.files[0]);
+  });
+  // Card file input
+  document.getElementById('file-input2').addEventListener('change', e => {
+    if (e.target.files[0]) load(e.target.files[0]);
+  });
+
+  function load(f) {
+    document.getElementById('load-status').textContent = 'Parsing…';
+    const r = new FileReader();
+    r.onload = ev => {
+      try { D = JSON.parse(ev.target.result); init(f.name); }
+      catch { document.getElementById('load-status').textContent = 'Error: invalid JSON'; }
+    };
+    r.readAsText(f);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+  function init(fname) {
+    // full_report.json wraps the diff under D.diff; older format has it at root
+    if (D.diff && D.diff.sheet_diffs) {
+      D.sheet_diffs    = D.diff.sheet_diffs;
+      D.sheets_added   = D.diff.sheets_added   || [];
+      D.sheets_removed = D.diff.sheets_removed || [];
+    }
+
+    // Show workbook filenames when available, otherwise fall back to JSON name
+    const strip = n => String(n).replace(/\.xlsx$/i, '');
+    const fileLabel = D.old_file && D.new_file
+      ? `${strip(D.old_file)}  →  ${strip(D.new_file)}`
+      : fname;
+    document.getElementById('hdr-file').textContent = fileLabel;
+    document.getElementById('search').disabled = false;
+    document.getElementById('empty-state').hidden = true;
+    document.getElementById('data-view').hidden = false;
+
+    for (const s of Object.keys(D.sheet_diffs)) rowCache[s] = buildRows(s);
+    sheet = Object.keys(D.sheet_diffs)[0];
+    col = null; type = 'all'; viewMode = 'column'; pg = 0; open.clear(); q = '';
+    renderSidebar(); renderGlobal(); renderApp();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function getCol(cell) { return (cell.match(/^([A-Z]+)/) || [, ''])[1]; }
+
+  function buildRows(s) {
+    const d = D.sheet_diffs[s], rows = [];
+    for (const [c, f] of Object.entries(d.added || {}))
+      rows.push({ cell: c, col: getCol(c), kind: 'added', formula: f });
+    for (const [c, f] of Object.entries(d.removed || {}))
+      rows.push({ cell: c, col: getCol(c), kind: 'removed', formula: f });
+    for (const [c, m] of Object.entries(d.modified || {}))
+      rows.push({
+        cell: c, col: getCol(c),
+        kind: m.change_type === 'semantic_change' ? 'semantic' : 'refshift',
+        ct: m.change_type, oldF: m.old_formula, newF: m.new_formula,
+        oldN: m.old_normalized, newN: m.new_normalized,
+        oldCell:   m.old_cell    || null,
+        alignedBy: m.aligned_by || null,
+      });
+    for (const c of (d.unchanged || []))
+      rows.push({ cell: c, col: getCol(c), kind: 'unchanged' });
+    rows.sort((a, b) => {
+      if (a.col !== b.col) return a.col.localeCompare(b.col);
+      return (parseInt(a.cell.replace(/[A-Z]+/, '')) || 0) - (parseInt(b.cell.replace(/[A-Z]+/, '')) || 0);
+    });
+    return rows;
+  }
+
+  function stats(s) {
+    const d = D.sheet_diffs[s], mod = Object.values(d.modified || {});
+    return {
+      added: Object.keys(d.added || {}).length,
+      removed: Object.keys(d.removed || {}).length,
+      semantic: mod.filter(m => m.change_type === 'semantic_change').length,
+      refshift: mod.filter(m => m.change_type === 'reference_shift').length,
+      unchanged: (d.unchanged || []).length,
+    };
+  }
+
+  function filteredRows() {
+    return (rowCache[sheet] || []).filter(r => {
+      if (type !== 'all' && r.kind !== type) return false;
+      if (col && r.col !== col) return false;
+      if (q) {
+        const h = [r.cell, r.formula, r.oldF, r.newF].filter(Boolean).join(' ').toLowerCase();
+        if (!h.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  // ── Renderers ─────────────────────────────────────────────────
+  function renderSidebar() {
+    const el = document.getElementById('sheet-list');
+    el.innerHTML = Object.keys(D.sheet_diffs).map(s => {
+      const st = stats(s);
+      const total = st.added + st.removed + st.semantic + st.refshift;
+      return `<button class="sheet-btn${s === sheet ? ' active' : ''}" data-s="${x(s)}">
+      <span class="sname">${x(s)}</span>
+      <span class="sbadge">${total.toLocaleString()}</span>
+    </button>`;
+    }).join('');
+    el.querySelectorAll('.sheet-btn').forEach(b => {
+      b.onclick = () => {
+        sheet = b.dataset.s; col = null; type = 'all'; viewMode = 'column'; pg = 0; open.clear();
+        renderSidebar(); renderApp();
+      };
+    });
+  }
+
+  function renderGlobal() {
+    let tA = 0, tR = 0, tS = 0, tF = 0;
+    for (const s of Object.keys(D.sheet_diffs)) {
+      const st = stats(s); tA += st.added; tR += st.removed; tS += st.semantic; tF += st.refshift;
+    }
+    const sA = (D.sheets_added || []).length, sR = (D.sheets_removed || []).length;
+    document.getElementById('global-stats').innerHTML =
+      `<div class="gstat"><span>Total added</span><span>${tA.toLocaleString()}</span></div>
+     <div class="gstat"><span>Total removed</span><span>${tR.toLocaleString()}</span></div>
+     <div class="gstat"><span>Semantic Δ</span><span>${tS.toLocaleString()}</span></div>
+     <div class="gstat"><span>Ref shifts</span><span>${tF.toLocaleString()}</span></div>
+     ${sA ? `<div class="gstat" style="color:var(--c-added)"><span>Sheets added</span><span>${sA}</span></div>` : ''}
+     ${sR ? `<div class="gstat" style="color:var(--c-removed)"><span>Sheets removed</span><span>${sR}</span></div>` : ''}`;
+  }
+
+  function renderApp() {
+    renderStats();
+    renderViewToggle();
+    if (viewMode === 'column') {
+      document.getElementById('col-view-wrap').hidden = false;
+      document.getElementById('cell-view-wrap').hidden = true;
+      document.getElementById('back-to-cols').hidden = true;
+      renderColView();
+    } else {
+      document.getElementById('col-view-wrap').hidden = true;
+      document.getElementById('cell-view-wrap').hidden = false;
+      document.getElementById('back-to-cols').hidden = false;
+      renderCols(); renderTypeTabs(); renderTable();
+    }
+  }
+
+  // ── View toggle ───────────────────────────────────────────────
+  function renderViewToggle() {
+    document.getElementById('view-toggle').innerHTML =
+      `<button class="vtab${viewMode === 'column' ? ' on' : ''}" id="vt-col">Column</button>` +
+      `<button class="vtab${viewMode === 'cell' ? ' on' : ''}" id="vt-cell">Cell</button>`;
+    document.getElementById('vt-col').onclick = () => { viewMode = 'column'; col = null; type = 'all'; renderApp(); };
+    document.getElementById('vt-cell').onclick = () => { viewMode = 'cell'; col = null; renderApp(); };
+    document.getElementById('back-to-cols').onclick = () => { viewMode = 'column'; col = null; type = 'all'; renderApp(); };
+  }
+
+  // ── Column view ───────────────────────────────────────────────
+  function colName(colLetter, s) {
+    const nm = D.column_mapping;
+    if (!nm) return '';
+    return ((nm.new || {})[s] || {})[colLetter]
+        || ((nm.old || {})[s] || {})[colLetter]
+        || '';
+  }
+
+  function buildColRows(s) {
+    const rows = rowCache[s] || [];
+    const map = {};
+    for (const r of rows) {
+      if (!map[r.col]) map[r.col] = { col: r.col, added: 0, removed: 0, semantic: 0, refshift: 0, unchanged: 0 };
+      const k = r.kind;
+      if      (k === 'added')    map[r.col].added++;
+      else if (k === 'removed')  map[r.col].removed++;
+      else if (k === 'semantic') map[r.col].semantic++;
+      else if (k === 'refshift') map[r.col].refshift++;
+      else if (k === 'unchanged')map[r.col].unchanged++;
+    }
+    return Object.values(map).sort((a, b) => {
+      const da = a.added + a.removed + a.semantic + a.refshift;
+      const db = b.added + b.removed + b.semantic + b.refshift;
+      if (da !== db) return db - da;
+      if (a.col.length !== b.col.length) return a.col.length - b.col.length;
+      return a.col.localeCompare(b.col);
+    });
+  }
+
+  function renderColView() {
+    const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
+    const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
+    const sortCols = arr => arr.sort((a, b) =>
+      a.length !== b.length ? a.length - b.length : a.localeCompare(b));
+    const addedCols   = sortCols(Object.keys(mapNew).filter(c => !(c in mapOld)));
+    const removedCols = sortCols(Object.keys(mapOld).filter(c => !(c in mapNew)));
+    const isNew = c => addedCols.includes(c);
+    const isDel = c => removedCols.includes(c);
+
+    // Banner: new / removed column headers
+    const bannerEl = document.getElementById('added-cols-banner');
+    let bannerHTML = '';
+    if (addedCols.length) {
+      bannerHTML += `<div class="col-hdr-section added">
+        <div class="col-hdr-section-label">New Columns Added (${addedCols.length})</div>
+        <div class="col-hdr-tags">${addedCols.map(c =>
+          `<span class="col-hdr-tag" title="${x(c)} – ${x(mapNew[c])}">
+            <span class="tag-letter">${x(c)}</span>${x(mapNew[c])}
+          </span>`).join('')}</div></div>`;
+    }
+    if (removedCols.length) {
+      bannerHTML += `<div class="col-hdr-section removed" style="${addedCols.length ? 'margin-top:10px' : ''}">
+        <div class="col-hdr-section-label">Columns Removed (${removedCols.length})</div>
+        <div class="col-hdr-tags">${removedCols.map(c =>
+          `<span class="col-hdr-tag" title="${x(c)} – ${x(mapOld[c])}">
+            <span class="tag-letter">${x(c)}</span>${x(mapOld[c])}
+          </span>`).join('')}</div></div>`;
+    }
+    bannerEl.innerHTML = bannerHTML;
+
+    // Table
+    const colRows = buildColRows(sheet);
+    const dash = '<span style="opacity:.2">—</span>';
+    document.getElementById('col-tbody').innerHTML = colRows.length
+      ? colRows.map(r => {
+          const nm    = colName(r.col, sheet);
+          const delta = r.added + r.removed + r.semantic + r.refshift;
+          const fmt   = n => n ? n.toLocaleString() : dash;
+          const badge = isNew(r.col) ? '<span class="badge-new">NEW</span>'
+                      : isDel(r.col) ? '<span class="badge-del">DEL</span>' : '';
+          return `<tr class="col-row" data-col="${x(r.col)}">
+            <td class="tc-ref" title="${x(nm || r.col)}">${x(r.col)}${badge}</td>
+            <td class="col-name">${x(nm)}</td>
+            <td class="col-cnt ca">${fmt(r.added)}</td>
+            <td class="col-cnt cr">${fmt(r.removed)}</td>
+            <td class="col-cnt cs">${fmt(r.semantic)}</td>
+            <td class="col-cnt cf">${fmt(r.refshift)}</td>
+            <td class="col-cnt cu">${fmt(r.unchanged)}</td>
+            <td class="col-cnt" style="font-weight:${delta ? '650' : '400'};color:${delta ? 'var(--text)' : 'var(--text-muted)'}">
+              ${delta ? delta.toLocaleString() : dash}
+            </td>
+          </tr>`;
+        }).join('')
+      : `<tr><td colspan="8" class="empty">No formulas in this sheet.</td></tr>`;
+
+    document.getElementById('col-tbody').querySelectorAll('.col-row').forEach(tr => {
+      tr.onclick = () => {
+        col = tr.dataset.col; viewMode = 'cell'; type = 'all'; pg = 0; open.clear();
+        renderApp();
+      };
+    });
+  }
+
+  function renderStats() {
+    const s = stats(sheet);
+    document.getElementById('stats-strip').innerHTML = `
+    <div class="scard sa"><div class="snum">${s.added.toLocaleString()}</div><div class="slabel">Added</div></div>
+    <div class="scard sr"><div class="snum">${s.removed.toLocaleString()}</div><div class="slabel">Removed</div></div>
+    <div class="scard ss"><div class="snum">${s.semantic.toLocaleString()}</div><div class="slabel">Semantic</div></div>
+    <div class="scard sf"><div class="snum">${s.refshift.toLocaleString()}</div><div class="slabel">Ref Shift</div></div>
+    <div class="scard su"><div class="snum">${s.unchanged.toLocaleString()}</div><div class="slabel">Unchanged</div></div>`;
+  }
+
+  function renderCols() {
+    const rows = rowCache[sheet] || [];
+    const cols = [...new Set(rows.map(r => r.col))].sort((a, b) => {
+      if (a.length !== b.length) return a.length - b.length;
+      return a.localeCompare(b);
+    });
+    const el = document.getElementById('col-chips');
+    el.innerHTML = `<button class="chip${!col ? ' on' : ''}" data-c="">All</button>` +
+      cols.map(c => {
+        const nm = colName(c, sheet);
+        const inner = nm
+          ? `<span class="chip-letter">${x(c)}</span><span class="chip-name">${x(nm)}</span>`
+          : x(c);
+        return `<button class="chip${col === c ? ' on' : ''}" data-c="${x(c)}" title="${x(nm || c)}">${inner}</button>`;
+      }).join('');
+    el.querySelectorAll('.chip').forEach(b => {
+      b.onclick = () => { col = b.dataset.c || null; pg = 0; open.clear(); renderCols(); renderTypeTabs(); renderTable(); };
+    });
+  }
+
+  function renderTypeTabs() {
+    const base = col ? (rowCache[sheet] || []).filter(r => r.col === col) : rowCache[sheet] || [];
+    const cnt = k => k === 'all' ? base.length : base.filter(r => r.kind === k).length;
+    const tabs = [
+      { id: 'all', lbl: 'All', cls: '' },
+      { id: 'added', lbl: 'Added', cls: 'ta' },
+      { id: 'removed', lbl: 'Removed', cls: 'tr' },
+      { id: 'semantic', lbl: 'Semantic', cls: 'ts' },
+      { id: 'refshift', lbl: 'Ref Shift', cls: 'tf' },
+      { id: 'unchanged', lbl: 'Unchanged', cls: 'tu' },
+    ];
+    document.getElementById('type-tabs').innerHTML = tabs.map(t =>
+      `<button class="ttab ${t.cls}${type === t.id ? ' on' : ''}" data-t="${t.id}">
+      ${t.lbl}<span class="tc">${cnt(t.id).toLocaleString()}</span>
+    </button>`).join('');
+    document.getElementById('type-tabs').querySelectorAll('.ttab').forEach(b => {
+      b.onclick = () => { type = b.dataset.t; pg = 0; open.clear(); renderTypeTabs(); renderTable(); };
+    });
+  }
+
+  function renderTable() {
+    const rows = filteredRows(), total = rows.length;
+    const slice = rows.slice(pg * PS, (pg + 1) * PS);
+    const tbody = document.getElementById('tbody');
+    if (!total) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">No results match the current filters.</td></tr>`;
+    } else {
+      tbody.innerHTML = slice.flatMap(r => {
+        const id = sheet + '§' + r.cell, isOpen = open.has(id);
+        return isOpen ? [rowHtml(r, id, true), expandHtml(r)] : [rowHtml(r, id, false)];
+      }).join('');
+      tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+        tr.onclick = () => { const id = tr.dataset.id; open.has(id) ? open.delete(id) : open.add(id); renderTable(); };
+      });
+    }
+    document.querySelector('.twrap').scrollTop = 0;
+    renderPg(total);
+  }
+
+  function rowHtml(r, id, isOpen) {
+    const cls = `k-${r.kind}${isOpen ? ' xopen' : ''}`;
+    const tog = `<span style="font-size:9px">${isOpen ? '▲' : '▼'}</span>`;
+    let oldF = '', newF = '', arr = '';
+    if (r.kind === 'added') { newF = `<span class="ftext">${x(r.formula)}</span>`; }
+    else if (r.kind === 'removed') { oldF = `<span class="ftext">${x(r.formula)}</span>`; }
+    else if (r.kind === 'unchanged') { oldF = `<span class="ftext" style="color:var(--text-muted);font-style:italic">unchanged</span>`; }
+    else { oldF = `<span class="ftext">${x(r.oldF)}</span>`; newF = `<span class="ftext">${x(r.newF)}</span>`; arr = '→'; }
+    const cellLabel = r.oldCell && r.oldCell !== r.cell
+      ? `<span style="display:block;font-size:9.5px;color:var(--text-muted);line-height:1.2">${x(r.oldCell)}</span>${x(r.cell)}`
+      : x(r.cell);
+    return `<tr class="${cls}" data-id="${x(id)}">
+    <td class="tc-ref">${cellLabel}</td>
+    <td class="tc-col">${x(r.col)}</td>
+    <td class="tc-type">${badge(r.kind)}</td>
+    <td class="tc-f">${oldF}</td>
+    <td class="tc-arr">${arr}</td>
+    <td class="tc-f">${newF}</td>
+    <td class="tc-tog">${tog}</td>
+  </tr>`;
+  }
+
+  function expandHtml(r) {
+    if (r.kind === 'unchanged')
+      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      <div class="xsec"><p style="font-size:12px;color:var(--text-muted)">Formula is unchanged between versions.</p></div>
+    </div></td></tr>`;
+    if (r.kind === 'added')
+      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      <div class="xsec"><h4>Added Formula</h4><div class="xcode">${x(r.formula)}</div></div>
+    </div></td></tr>`;
+    if (r.kind === 'removed')
+      return `<tr class="xrow"><td colspan="7"><div class="xcontent single">
+      <div class="xsec"><h4>Removed Formula</h4><div class="xcode">${x(r.formula)}</div></div>
+    </div></td></tr>`;
+    const metaLine = (() => {
+      const parts = [];
+      if (r.oldCell && r.oldCell !== r.cell)
+        parts.push(`Row moved: <span style="font-family:var(--mono)">${x(r.oldCell)} → ${x(r.cell)}</span>`);
+      if (r.alignedBy)
+        parts.push(`Aligned by: <strong>${x(r.alignedBy)}</strong>`);
+      return parts.length
+        ? `<div style="margin-top:10px;grid-column:1/-1;font-size:11px;color:var(--text-muted)">${parts.join(' &nbsp;·&nbsp; ')}</div>`
+        : '';
+    })();
+    return `<tr class="xrow"><td colspan="7"><div class="xcontent">
+    <div class="xsec">
+      <h4>Old Formula</h4><div class="xcode">${x(r.oldF)}</div>
+      ${r.oldN ? `<h4>Old Normalized</h4><div class="xcode norm">${x(r.oldN)}</div>` : ''}
+    </div>
+    <div class="xsec">
+      <h4>New Formula</h4><div class="xcode">${x(r.newF)}</div>
+      ${r.newN ? `<h4>New Normalized</h4><div class="xcode norm">${x(r.newN)}</div>` : ''}
+    </div>
+    ${metaLine}
+  </div></td></tr>`;
+  }
+
+  function badge(kind) {
+    const m = {
+      added: 'ba Added', removed: 'br Removed', semantic: 'bs Semantic',
+      refshift: 'bf Ref Shift', unchanged: 'bu Unchanged'
+    };
+    const [c, l] = (m[kind] || 'bu ?').split(' ');
+    return `<span class="badge ${c}">${l}</span>`;
+  }
+
+  function renderPg(total) {
+    if (!total) { document.getElementById('pgbar').innerHTML = ''; return; }
+    const pages = Math.ceil(total / PS), s = pg * PS + 1, e = Math.min((pg + 1) * PS, total);
+    let nums = '';
+    for (let p = Math.max(0, pg - 2); p < Math.min(pages, pg + 3); p++)
+      nums += `<button class="pgbtn${p === pg ? ' cur' : ''}" data-p="${p}">${p + 1}</button>`;
+    document.getElementById('pgbar').innerHTML =
+      `<span class="pginfo">${s.toLocaleString()}–${e.toLocaleString()} of ${total.toLocaleString()}</span>
+     <div class="pgbtns">
+       <button class="pgbtn" data-p="0" ${pg === 0 ? 'disabled' : ''}>«</button>
+       <button class="pgbtn" data-p="${pg - 1}" ${pg === 0 ? 'disabled' : ''}>‹</button>
+       ${nums}
+       <button class="pgbtn" data-p="${pg + 1}" ${pg >= pages - 1 ? 'disabled' : ''}>›</button>
+       <button class="pgbtn" data-p="${pages - 1}" ${pg >= pages - 1 ? 'disabled' : ''}>»</button>
+     </div>`;
+    document.getElementById('pgbar').querySelectorAll('.pgbtn:not([disabled])').forEach(b => {
+      b.onclick = () => { pg = parseInt(b.dataset.p); open.clear(); renderTable(); };
+    });
+  }
+
+  // ── Search ────────────────────────────────────────────────────
+  document.getElementById('search').addEventListener('input', e => {
+    q = e.target.value.trim().toLowerCase(); pg = 0; open.clear();
+    renderTypeTabs(); renderTable();
+  });
+
+  // ── Escape ────────────────────────────────────────────────────
+  function x(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+</script>
