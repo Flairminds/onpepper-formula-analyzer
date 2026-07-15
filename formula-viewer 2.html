@@ -1092,6 +1092,15 @@
     Open JSON
     <input type="file" id="file-input" accept=".json" style="display:none">
   </label>
+  <button class="hdr-upload hdr-export-btn" id="export-btn" title="Export comparison as Excel audit report" hidden>
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" />
+      <polyline points="5 10 8 13 11 10" />
+      <line x1="8" y1="3" x2="8" y2="13" />
+    </svg>
+    Export Report
+  </button>
   <input class="app-search" id="search" type="search" placeholder="Search cells or formulas…" disabled>
   <button class="theme-btn" id="theme-btn" title="Toggle theme">☀</button>
 </header>
@@ -1318,6 +1327,7 @@
     document.getElementById('search').disabled = false;
     document.getElementById('empty-state').hidden = true;
     document.getElementById('data-view').hidden = false;
+    document.getElementById('export-btn').hidden = false;
 
     for (const s of Object.keys(D.sheet_diffs)) rowCache[s] = buildRows(s);
     sheet = Object.keys(D.sheet_diffs)[0];
@@ -1972,6 +1982,42 @@
       loadHistory();
     } catch (e) {
       status.textContent = 'Error: ' + e.message + ' (is server.py running?)';
+    }
+  });
+
+  // ── Export Report ─────────────────────────────────────────────
+  document.getElementById('export-btn').addEventListener('click', async () => {
+    if (!D || !D.sheet_diffs) return;
+    const btn = document.getElementById('export-btn');
+    const orig = btn.textContent;
+    btn.textContent = 'Exporting…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(D),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Export failed: ' + (err.error || res.statusText));
+        return;
+      }
+      const blob = await res.blob();
+      const cd = res.headers.get('Content-Disposition') || '';
+      const m = cd.match(/filename="?([^";\n]+)"?/);
+      const filename = m ? m[1] : 'comparison_report.xlsx';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Export error: ' + e.message + ' (is server.py running?)');
+    } finally {
+      btn.textContent = orig;
+      btn.disabled = false;
     }
   });
 

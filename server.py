@@ -10,10 +10,11 @@ import os
 import re
 import tempfile
 
-from flask import Flask, abort, jsonify, request, send_from_directory
+from flask import Flask, abort, jsonify, request, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 
 from src.compare_service import run_comparison
+from src.excel_exporter import export_report_bytes
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPORTS_DIR = os.path.join(BASE_DIR, "reports")
@@ -101,6 +102,29 @@ def compare():
         json.dump(report, f, indent=2)
 
     return jsonify({"version": version, "file": out_name, "report": report})
+
+
+@app.route("/api/export", methods=["POST"])
+def export():
+    report = request.get_json(force=True, silent=True)
+    if not report:
+        return jsonify({"error": "No report data provided."}), 400
+
+    try:
+        buf = export_report_bytes(report)
+    except Exception as e:
+        return jsonify({"error": f"Export failed: {e}"}), 500
+
+    old_name = report.get("old_file", "old").replace(".xlsx", "")
+    new_name = report.get("new_file", "new").replace(".xlsx", "")
+    filename = f"comparison_{old_name}_vs_{new_name}.xlsx"
+
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 if __name__ == "__main__":
