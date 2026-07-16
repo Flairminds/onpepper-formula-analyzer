@@ -407,8 +407,8 @@
   .scard {
     flex: 1;
     background: var(--surface);
-    padding: 12px 18px;
-    border-top: 3px solid transparent;
+    padding: 7px 14px;
+    border-top: 2px solid transparent;
     min-width: 0;
     cursor: default
   }
@@ -434,7 +434,7 @@
   }
 
   .snum {
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     line-height: 1.2
@@ -597,6 +597,24 @@
     flex-wrap: wrap;
     gap: 2px
   }
+
+  /* Column chip rows — single scrollable line, no wrap */
+  #col-chips, #sv-col-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    padding-bottom: 2px
+  }
+  #col-chips::-webkit-scrollbar,
+  #sv-col-chips::-webkit-scrollbar { height: 3px }
+  #col-chips::-webkit-scrollbar-track,
+  #sv-col-chips::-webkit-scrollbar-track { background: transparent }
+  #col-chips::-webkit-scrollbar-thumb,
+  #sv-col-chips::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px }
+  #col-chips .ttab, #sv-col-chips .ttab { flex-shrink: 0 }
 
   .ttab {
     padding: 3px 11px;
@@ -982,6 +1000,517 @@
     font-variant-numeric: tabular-nums
   }
 
+  /* ═══════════════════════════════════════════════════════
+     DASHBOARD NAV TABS
+  ═══════════════════════════════════════════════════════ */
+  .dash-nav {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    flex-shrink: 0;
+    padding: 0 16px;
+    gap: 4px
+  }
+  .dnav-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap
+  }
+  .dnav-tab:hover { color: var(--text) }
+  .dnav-tab.dn-active { color: var(--text); border-bottom-color: var(--accent) }
+  .dnav-tab.dn-changes.dn-active { border-bottom-color: var(--c-semantic) }
+  .dnav-tab.dn-structural.dn-active { border-bottom-color: var(--c-refshift) }
+  .dnav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    min-width: 24px;
+    font-variant-numeric: tabular-nums
+  }
+  .dn-active .dnav-badge { background: var(--accent-sub); color: var(--accent) }
+  .dn-changes.dn-active .dnav-badge { background: rgba(201,121,36,.12); color: var(--c-semantic) }
+  .dn-structural.dn-active .dnav-badge { background: rgba(43,130,204,.12); color: var(--c-refshift) }
+  .dnav-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0
+  }
+  .dn-changes .dnav-dot  { background: var(--c-semantic) }
+  .dn-structural .dnav-dot { background: var(--c-refshift) }
+  .dn-overview .dnav-dot { display: none }
+  .dn-overview.dn-active { border-bottom-color: var(--accent) }
+  .dn-overview.dn-active .dnav-badge { background: var(--accent-sub); color: var(--accent) }
+
+  /* ═══════════════════════════════════════════════════════
+     OVERVIEW / DASHBOARD
+  ═══════════════════════════════════════════════════════ */
+  #overview-view {
+    flex: 1; overflow-y: auto; padding: 22px 24px; min-height: 0
+  }
+  .ov-page-hdr {
+    margin-bottom: 18px
+  }
+  .ov-page-title {
+    font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2
+  }
+  .ov-page-sub {
+    font-size: 12.5px; color: var(--text-muted); margin-top: 2px
+  }
+  /* Stat cards row */
+  .ov-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 20px
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px;
+    border-top: 3px solid var(--border); cursor: default
+  }
+  .stat-card.sc-clickable { cursor: pointer; transition: box-shadow .15s }
+  .stat-card.sc-clickable:hover { box-shadow: 0 2px 12px rgba(0,0,0,.1) }
+  .sc-semantic { border-top-color: var(--c-semantic) }
+  .sc-added    { border-top-color: var(--c-added) }
+  .sc-removed  { border-top-color: var(--c-removed) }
+  .sc-refshift { border-top-color: var(--c-refshift) }
+  .sc-struct   { border-top-color: #7B5EA7 }
+  .sc-unch     { border-top-color: var(--border) }
+  .sc-val {
+    font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums;
+    line-height: 1; margin-bottom: 4px
+  }
+  .sc-semantic .sc-val { color: var(--c-semantic) }
+  .sc-added    .sc-val { color: var(--c-added) }
+  .sc-removed  .sc-val { color: var(--c-removed) }
+  .sc-refshift .sc-val { color: var(--c-refshift) }
+  .sc-struct   .sc-val { color: #7B5EA7 }
+  .sc-unch     .sc-val { color: var(--text-muted) }
+  .sc-label { font-size: 11.5px; color: var(--text-muted); font-weight: 500 }
+  .sc-hint { font-size: 10.5px; color: var(--text-muted); margin-top: 6px; opacity: .7 }
+
+  /* Overview two-column grid */
+  .ov-grid {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; align-items: start
+  }
+  @media (max-width: 960px) { .ov-grid { grid-template-columns: 1fr } }
+  .ov-left, .ov-right { display: flex; flex-direction: column; gap: 16px }
+
+  /* Overview card */
+  .ov-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden
+  }
+  .ov-card-hdr {
+    padding: 12px 18px 10px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px
+  }
+  .ov-card-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em
+  }
+  .ov-ct-added   { color: var(--c-added) }
+  .ov-ct-shifted { color: var(--c-refshift) }
+  .ov-ct-logic   { color: var(--c-semantic) }
+  .ov-ct-neutral { color: var(--text-muted) }
+  .ov-card-sub { font-size: 11.5px; color: var(--text-muted) }
+  .ov-card-action {
+    font-size: 11.5px; color: var(--accent); cursor: pointer;
+    background: none; border: none; font-family: var(--sans);
+    padding: 0; flex-shrink: 0
+  }
+  .ov-card-action:hover { text-decoration: underline }
+
+  /* Overview table */
+  .ov-table { width: 100%; border-collapse: collapse }
+  .ov-table thead th {
+    background: var(--surface-2); padding: 7px 16px; text-align: left;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text-muted);
+    border-bottom: 1px solid var(--border)
+  }
+  .ov-table tbody td {
+    padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12.5px
+  }
+  .ov-table tbody tr:last-child td { border-bottom: none }
+  .ov-table tbody tr:hover td { background: var(--surface-2) }
+  .ov-col-badge {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    font-weight: 700; padding: 2px 6px; border-radius: 4px;
+    background: rgba(26,155,104,.1); color: var(--c-added);
+    border: 1px solid rgba(26,155,104,.3)
+  }
+  .ov-col-badge.shifted {
+    background: rgba(43,130,204,.1); color: var(--c-refshift);
+    border-color: rgba(43,130,204,.3)
+  }
+  .ov-col-badge.semantic {
+    background: rgba(201,121,36,.1); color: var(--c-semantic);
+    border-color: rgba(201,121,36,.3)
+  }
+  .ov-lc-row { cursor: pointer }
+  .ov-lc-row:hover td { background: rgba(201,121,36,.05) }
+  .ov-arrow { color: var(--text-muted); margin: 0 3px; font-size: 11px }
+  .ov-impact-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px
+  }
+  .ov-chip-high   { background: rgba(199,54,80,.12);   color: var(--c-removed) }
+  .ov-chip-medium { background: rgba(201,121,36,.12);  color: var(--c-semantic) }
+  .ov-chip-low    { background: rgba(26,155,104,.12);  color: var(--c-added) }
+
+  /* Change breakdown bars */
+  .ov-breakdown { padding: 14px 18px; display: flex; flex-direction: column; gap: 9px }
+  .ov-bk-row {
+    display: grid; grid-template-columns: 130px 1fr 54px 38px;
+    align-items: center; gap: 8px
+  }
+  .ov-bk-label { font-size: 12px; color: var(--text) }
+  .ov-bk-bar-wrap {
+    height: 7px; background: var(--surface-2); border-radius: 4px; overflow: hidden
+  }
+  .ov-bk-bar { height: 100%; border-radius: 4px }
+  .sc-semantic .ov-bk-bar { background: var(--c-semantic) }
+  .sc-added    .ov-bk-bar { background: var(--c-added) }
+  .sc-removed  .ov-bk-bar { background: var(--c-removed) }
+  .sc-refshift .ov-bk-bar { background: var(--c-refshift) }
+  .sc-unch     .ov-bk-bar { background: var(--border) }
+  .ov-bk-num { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right }
+  .sc-semantic .ov-bk-num { color: var(--c-semantic) }
+  .sc-added    .ov-bk-num { color: var(--c-added) }
+  .sc-removed  .ov-bk-num { color: var(--c-removed) }
+  .sc-refshift .ov-bk-num { color: var(--c-refshift) }
+  .ov-bk-pct { font-size: 11px; color: var(--text-muted) }
+  .ov-explore-btn {
+    display: block; margin: 10px 18px 14px;
+    padding: 8px 16px; background: var(--accent-sub);
+    border: 1px solid var(--accent); border-radius: var(--r);
+    color: var(--accent); font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: var(--sans); text-align: center;
+    transition: background .15s, color .15s
+  }
+  .ov-explore-btn:hover { background: var(--accent); color: #fff }
+  .ov-empty-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px 18px; text-align: center;
+    color: var(--text-muted); font-size: 12.5px
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     CHANGES VIEW
+  ═══════════════════════════════════════════════════════ */
+  #overview-view, #changes-view, #structural-view {
+    flex: 1; overflow: hidden; min-height: 0; display: flex; flex-direction: column
+  }
+  #overview-view { overflow-y: auto }
+  .cv-filter-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 7px 14px; background: var(--surface);
+    border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: nowrap; overflow: hidden
+  }
+  .cv-filter-left { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: nowrap; min-width: 0; overflow: hidden }
+  .cv-filter-right { display: flex; align-items: center; gap: 8px }
+  #cv-search {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 4px 10px; font-size: 12px;
+    color: var(--text); font-family: var(--sans); outline: none; width: 200px
+  }
+  #cv-search:focus { border-color: var(--accent) }
+
+  .chip-search {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 3px 8px 3px 24px; font-size: 11px;
+    color: var(--text); font-family: var(--sans); outline: none;
+    width: 130px; flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 16 16' fill='none' stroke='%23888' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='6.5' cy='6.5' r='4.5'/%3E%3Cline x1='10.5' y1='10.5' x2='14' y2='14'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 7px center
+  }
+  .chip-search:focus { border-color: var(--accent) }
+  .chip-search::placeholder { color: var(--text-muted) }
+
+  /* ── Searchable column dropdown ─────────────────────────── */
+  .cdrop { position: relative; flex-shrink: 0 }
+  .cdrop-trigger {
+    display: flex; align-items: center; gap: 4px;
+    height: 30px; padding: 0 8px 0 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface-2); cursor: text;
+    min-width: 210px; transition: border-color .12s; box-sizing: border-box
+  }
+  .cdrop-trigger:focus-within { border-color: var(--accent) }
+  .cdrop-input {
+    flex: 1; min-width: 0; border: none; background: transparent;
+    font-family: var(--sans); font-size: 12.5px; color: var(--text); outline: none
+  }
+  .cdrop-input::placeholder { color: var(--text-muted) }
+  .cdrop-clear {
+    display: flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: var(--border); cursor: pointer;
+    font-size: 10px; color: var(--text-muted); flex-shrink: 0;
+    padding: 0; line-height: 1; transition: background .12s
+  }
+  .cdrop-clear:hover { background: var(--c-removed); color: #fff }
+  .cdrop-caret { font-size: 9px; color: var(--text-muted); pointer-events: none; flex-shrink: 0 }
+  .cdrop-list {
+    position: fixed; z-index: 9999;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.15);
+    overflow-y: auto; max-height: 268px; padding: 3px 0
+  }
+  .cdrop-opt {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 12px; cursor: pointer; gap: 8px;
+    font-size: 12.5px; font-family: var(--sans); transition: background .1s
+  }
+  .cdrop-opt:hover { background: var(--surface-2) }
+  .cdrop-opt.cdrop-active { background: rgba(43,130,204,.09); color: var(--accent); font-weight: 600 }
+  .cdrop-opt.cdrop-active:hover { background: rgba(43,130,204,.14) }
+  .cdrop-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  .cdrop-letter {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px; flex-shrink: 0;
+    background: rgba(43,130,204,.1); color: var(--c-refshift);
+    border: 1px solid rgba(43,130,204,.2)
+  }
+  .cdrop-cnt { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0 }
+  .cdrop-no-match { padding: 10px 12px; font-size: 12px; color: var(--text-muted) }
+  .cdrop-mark { background: rgba(201,121,36,.3); border-radius: 2px; font-style: normal }
+
+  .cv-body { flex: 1; overflow-y: auto; min-height: 0 }
+
+  /* ── Change type tabs ────────────────────────────────── */
+  #chg-type-bar {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--surface); border-bottom: 2px solid var(--border);
+    padding: 0 14px; flex-shrink: 0
+  }
+  .ct-tab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 16px; cursor: pointer; border: none;
+    background: none; font-family: var(--sans); font-size: 12.5px;
+    font-weight: 600; color: var(--text-muted);
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    white-space: nowrap; transition: color .12s
+  }
+  .ct-tab:hover { color: var(--text) }
+  .ct-tab.ct-active { color: var(--text) }
+  .ct-tab.ct-semantic.ct-active { color: var(--c-semantic); border-bottom-color: var(--c-semantic) }
+  .ct-tab.ct-added.ct-active    { color: var(--c-added);    border-bottom-color: var(--c-added) }
+  .ct-tab.ct-removed.ct-active  { color: var(--c-removed);  border-bottom-color: var(--c-removed) }
+  .ct-badge {
+    font-size: 10.5px; font-weight: 700; padding: 1px 7px;
+    border-radius: 10px; background: var(--surface-2);
+    color: var(--text-muted); font-variant-numeric: tabular-nums
+  }
+  .ct-tab.ct-semantic.ct-active .ct-badge { background: rgba(201,121,36,.15); color: var(--c-semantic) }
+  .ct-tab.ct-added.ct-active    .ct-badge { background: rgba(26,155,104,.15);  color: var(--c-added) }
+  .ct-tab.ct-removed.ct-active  .ct-badge { background: rgba(199,54,80,.15);   color: var(--c-removed) }
+  .ct-tab-empty { color: var(--text-muted); opacity: .35; cursor: default }
+
+  /* Table inside cv-body */
+  .cv-body table { width: 100%; border-collapse: collapse }
+  .cv-body table thead th {
+    background: var(--surface-2); padding: 6px 8px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text-muted); white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    position: sticky; top: 0; z-index: 3
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     STRUCTURAL VIEW
+  ═══════════════════════════════════════════════════════ */
+  /* Insert zone — slim single bar */
+  .sv-insert-zone {
+    background: rgba(26,155,104,.05);
+    border-bottom: 1px solid rgba(26,155,104,.2);
+    padding: 6px 14px;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0; flex-wrap: wrap
+  }
+  .sv-insert-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--c-added); white-space: nowrap;
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0
+  }
+  .sv-insert-title::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--c-added) }
+  .sv-insert-cards { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+  .sv-insert-card {
+    background: var(--surface); border: 1px solid rgba(26,155,104,.35);
+    border-radius: 5px; padding: 3px 10px 3px 6px;
+    display: flex; align-items: center; gap: 7px
+  }
+  .sv-insert-letter {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    color: var(--c-added); background: rgba(26,155,104,.12);
+    border-radius: 3px; padding: 1px 6px; flex-shrink: 0
+  }
+  .sv-insert-name { font-size: 12px; font-weight: 600; color: var(--text) }
+  .sv-insert-sub { font-size: 10.5px; color: var(--c-added) }
+
+  /* Shift zone — compact scrollable grid */
+  .sv-shift-zone {
+    background: var(--surface); border-bottom: 2px solid var(--border);
+    padding: 6px 14px 8px; flex-shrink: 0; max-height: 25vh; overflow-y: auto
+  }
+  .sv-shift-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--c-refshift); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 5px
+  }
+  .sv-shift-title::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--c-refshift) }
+  .sv-shift-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 4px
+  }
+  .sv-shift-item {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 4px 8px; font-size: 11.5px
+  }
+  .sv-shift-name { flex: 1; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  .sv-shift-arrow { display: flex; align-items: center; gap: 3px; flex-shrink: 0 }
+  .sv-letter {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    color: var(--c-refshift); background: rgba(43,130,204,.1);
+    border-radius: 3px; padding: 1px 4px
+  }
+  .sv-arrow-icon { color: var(--text-muted); font-size: 9px }
+
+  /* Ref-shift section header */
+  .sv-sec-hdr {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 14px; background: var(--surface-2);
+    border-bottom: 1px solid var(--border); flex-shrink: 0
+  }
+  .sv-sec-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--c-refshift)
+  }
+  .sv-sec-count { font-size: 11px; color: var(--text-muted) }
+
+  .sv-refshift-section {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0
+  }
+  #sv-twrap { flex: 1; overflow-y: auto }
+  #sv-twrap table { width: 100%; border-collapse: collapse; font-size: 12.5px }
+  #sv-twrap thead th {
+    position: sticky; top: 0; background: var(--surface-2);
+    border-bottom: 2px solid var(--border); padding: 6px 8px;
+    text-align: left; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .07em;
+    color: var(--text-muted); white-space: nowrap; z-index: 3
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SHARED CELL / TABLE STYLES
+  ═══════════════════════════════════════════════════════ */
+  tbody tr { border-left-width: 4px !important }
+  tr.k-added    { background: rgba(26,155,104,.03) }
+  tr.k-removed  { background: rgba(199,54,80,.03) }
+  tr.k-semantic { background: rgba(201,121,36,.03) }
+  tr.k-refshift { background: rgba(43,130,204,.03) }
+  tr.k-added:hover    { background: rgba(26,155,104,.07) }
+  tr.k-removed:hover  { background: rgba(199,54,80,.07) }
+  tr.k-semantic:hover { background: rgba(201,121,36,.07) }
+  tr.k-refshift:hover { background: rgba(43,130,204,.07) }
+
+  td.tc-ref { width:76px; white-space:nowrap; text-align:center }
+  .cell-badge {
+    display:inline-block; font-family:var(--mono); font-size:11.5px;
+    font-weight:700; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:4px; padding:2px 7px; color:var(--text); letter-spacing:.02em
+  }
+  tr.k-added    .cell-badge { border-color:rgba(26,155,104,.4);  color:var(--c-added) }
+  tr.k-removed  .cell-badge { border-color:rgba(199,54,80,.4);   color:var(--c-removed) }
+  tr.k-semantic .cell-badge { border-color:rgba(201,121,36,.4);  color:var(--c-semantic) }
+  tr.k-refshift .cell-badge { border-color:rgba(43,130,204,.4);  color:var(--c-refshift) }
+
+  .tc-biz { min-width:160px; max-width:260px; padding:3px 8px !important }
+  .biz-name { font-weight:600; font-size:12.5px; color:var(--text); line-height:1.25 }
+  .biz-shift { font-size:10.5px; color:var(--c-refshift); font-family:var(--mono); margin-top:1px; line-height:1.2 }
+
+  .type-pill {
+    display:inline-block; padding:2px 7px; border-radius:4px;
+    font-size:9.5px; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; white-space:nowrap; border:1px solid transparent
+  }
+  .tp-semantic { background:rgba(201,121,36,.14); color:var(--c-semantic); border-color:var(--c-semantic) }
+  .tp-refshift { background:rgba(43,130,204,.14);  color:var(--c-refshift); border-color:var(--c-refshift) }
+  .tp-added    { background:rgba(26,155,104,.14);  color:var(--c-added);    border-color:var(--c-added) }
+  .tp-removed  { background:rgba(199,54,80,.14);   color:var(--c-removed);  border-color:var(--c-removed) }
+  .tp-unch     { background:var(--surface-2);      color:var(--text-muted); border-color:var(--border) }
+
+  td.tc-reason { min-width:160px; max-width:240px }
+  .reason-bullets { font-size:11px; line-height:1.45 }
+  .rb-logic   { color:var(--c-semantic); display:block }
+  .rb-nochange{ color:var(--text-muted); display:block }
+  .rb-shift   { color:var(--c-refshift); display:block }
+  .rb-cause   { color:var(--text-muted); display:inline; font-size:10.5px }
+  .rb-struct  { color:var(--text);       display:block }
+  .rb-removed { color:var(--c-removed);  display:block }
+
+  .ftext {
+    display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-family:var(--mono); font-size:11px; background:var(--bg);
+    border:1px solid var(--border); border-radius:4px; padding:3px 7px; color:var(--text)
+  }
+
+  .tc-det { width:108px; white-space:nowrap }
+  .det-btn {
+    background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--r); padding:3px 10px; font-size:11px;
+    font-family:var(--sans); cursor:pointer; color:var(--text-muted);
+    white-space:nowrap; transition:background .12s,border-color .12s,color .12s;
+    display:inline-flex; align-items:center; gap:4px
+  }
+  .det-btn::after { content:"▶"; font-size:8px; opacity:.6 }
+  .det-btn:hover { background:var(--accent-sub); border-color:var(--accent); color:var(--accent) }
+  .det-active-row .det-btn { background:var(--accent-sub); border-color:var(--accent); color:var(--accent); font-weight:600 }
+  .det-active-row .det-btn::after { content:"▼" }
+
+  /* Detail panel */
+  #detail-panel {
+    background:var(--surface); border-top:2px solid var(--accent);
+    flex-shrink:0; max-height:44vh; overflow-y:auto
+  }
+  .dp-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 18px; border-bottom:1px solid var(--border);
+    background:var(--surface-2); position:sticky; top:0; z-index:5
+  }
+  .dp-title { font-size:13px; display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+  .dp-meta { font-size:12px; color:var(--text-muted) }
+  .dp-close { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:14px; padding:2px 6px; border-radius:var(--r); transition:color .12s }
+  .dp-close:hover { color:var(--c-removed) }
+  .dp-body { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; padding:14px 18px }
+  .dp-sec h4 { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin-bottom:5px }
+  .dp-text { font-size:12px; color:var(--text); margin:2px 0 }
+  .dp-impact-bad { font-size:12px; color:var(--c-semantic); font-weight:600 }
+  .dp-impact-ok  { font-size:12px; color:var(--c-added);    font-weight:600 }
+
+  /* Column-view */
+  .col-name { font-size:12.5px; font-weight:500; color:var(--text); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .tc-letter { font-family:var(--mono); font-size:11px; color:var(--text-muted); width:52px; white-space:nowrap }
+
   /* Row serial number column */
   .tc-sno {
     width: 44px;
@@ -1092,6 +1621,15 @@
     Open JSON
     <input type="file" id="file-input" accept=".json" style="display:none">
   </label>
+  <button class="hdr-upload hdr-export-btn" id="export-btn" title="Export comparison as Excel audit report" hidden>
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" />
+      <polyline points="5 10 8 13 11 10" />
+      <line x1="8" y1="3" x2="8" y2="13" />
+    </svg>
+    Export Report
+  </button>
   <input class="app-search" id="search" type="search" placeholder="Search cells or formulas…" disabled>
   <button class="theme-btn" id="theme-btn" title="Toggle theme">☀</button>
 </header>
@@ -1154,78 +1692,83 @@
 
       <div class="stats-strip" id="stats-strip"></div>
 
-      <!-- View-mode bar -->
-      <div class="view-bar">
-        <div id="view-toggle"></div>
-        <button id="back-to-cols" class="back-btn" hidden>&#8592; All Columns</button>
-      </div>
+      <!-- Dashboard navigation tabs -->
+      <div class="dash-nav" id="dash-nav"></div>
 
-      <!-- Column view -->
-      <div id="col-view-wrap">
-        <div id="added-cols-banner" style="margin-bottom:4px"></div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 14px 4px">
-          <div style="position:relative;flex:0 0 280px">
-            <svg style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
-            <input id="col-filter-input" type="text" placeholder="Search columns…" autocomplete="off" spellcheck="false"
-              style="width:100%;box-sizing:border-box;padding:5px 28px 5px 28px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface-2);color:var(--text);font-family:var(--mono);font-size:12px;outline:none">
-          </div>
-          <span id="col-filter-count" style="font-size:11px;color:var(--text-muted)"></span>
-        </div>
-        <div class="twrap">
-          <table>
-            <thead>
-              <tr id="col-thead-row">
-                <th class="sortable" data-sk="col" style="width:52px">Col</th>
-                <th class="sortable" data-sk="name">Name</th>
-                <th style="min-width:140px">Reason</th>
-                <th class="col-cnt sortable" data-sk="added" style="width:76px">Added</th>
-                <th class="col-cnt sortable" data-sk="removed" style="width:76px">Removed</th>
-                <th class="col-cnt sortable" data-sk="semantic" style="width:76px">Logic Changed</th>
-                <th class="col-cnt sortable" data-sk="refshift" style="width:76px">Ref Shift</th>
-                <th class="col-cnt sortable" data-sk="unchanged" style="width:82px">Unchanged</th>
-                <th class="col-cnt sortable" data-sk="delta" style="width:76px">Total &#916;</th>
-              </tr>
-            </thead>
-            <tbody id="col-tbody"></tbody>
-          </table>
-        </div>
-      </div>
+      <!-- OVERVIEW VIEW (Priority 0: Dashboard) -->
+      <div id="overview-view" hidden></div>
 
-      <!-- Cell view -->
-      <div id="cell-view-wrap" hidden>
-        <div class="filter-bar">
-          <div class="frow">
+      <!-- CHANGES VIEW (Priority 1: Logic Changed + Added + Removed) -->
+      <div id="changes-view" hidden>
+        <!-- Type tabs: Logic Changed / Added / Removed -->
+        <div id="chg-type-bar"></div>
+        <!-- Column filter bar -->
+        <div class="cv-filter-bar" style="padding:4px 10px">
+          <div class="cv-filter-left">
             <span class="flabel">Column</span>
-            <div class="chips" id="col-chips"></div>
+            <div class="cdrop" id="col-cdrop">
+              <div class="cdrop-trigger">
+                <input id="col-chip-search" class="cdrop-input" type="text" placeholder="All columns…" autocomplete="off" spellcheck="false">
+                <button class="cdrop-clear" id="col-cdrop-clear" hidden title="Clear filter">&#10005;</button>
+                <span class="cdrop-caret">&#9662;</span>
+              </div>
+              <div class="cdrop-list" id="col-cdrop-list" hidden></div>
+            </div>
           </div>
-          <div class="frow">
-            <span class="flabel">Type</span>
-            <div class="ttabs" id="type-tabs"></div>
-          </div>
-          <div class="frow">
-            <span class="flabel">Reason</span>
-            <div class="ttabs" id="reason-tabs"></div>
+          <div class="cv-filter-right" id="cv-search-wrap">
+            <input id="cv-search" type="text" placeholder="Search by cell, column or formula…" autocomplete="off" spellcheck="false">
           </div>
         </div>
-        <div class="twrap">
-          <table>
-            <thead>
-              <tr>
-                <th class="tc-sno">#</th>
-                <th>Cell</th>
-                <th>Col</th>
-                <th>Type</th>
-                <th>Reason</th>
-                <th>Old Formula</th>
-                <th></th>
-                <th>New Formula</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
+        <div class="cv-body" id="cv-body"></div>
+      </div>
+
+      <!-- STRUCTURAL VIEW (Priority 2: Column Shifts + Ref Shifts) -->
+      <div id="structural-view" hidden>
+        <div class="sv-insert-zone" id="sv-insert-zone"></div>
+        <div class="sv-shift-zone" id="sv-shift-zone"></div>
+        <div class="sv-refshift-section" id="sv-refshift-section">
+          <div class="sv-sec-hdr" id="sv-sec-hdr"></div>
+          <div class="cv-filter-bar" style="border-top:none;padding:4px 10px">
+            <div class="cv-filter-left">
+              <span class="flabel">Column</span>
+              <div class="cdrop" id="sv-col-cdrop">
+                <div class="cdrop-trigger">
+                  <input id="sv-col-chip-search" class="cdrop-input" type="text" placeholder="All columns…" autocomplete="off" spellcheck="false">
+                  <button class="cdrop-clear" id="sv-col-cdrop-clear" hidden title="Clear filter">&#10005;</button>
+                  <span class="cdrop-caret">&#9662;</span>
+                </div>
+                <div class="cdrop-list" id="sv-col-cdrop-list" hidden></div>
+              </div>
+            </div>
+          </div>
+          <div class="twrap" id="sv-twrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="tc-sno">#</th>
+                  <th style="min-width:170px">Business Column</th>
+                  <th style="width:76px">Cell</th>
+                  <th style="width:110px">Type</th>
+                  <th style="min-width:160px">Reason</th>
+                  <th>Old Formula</th>
+                  <th>New Formula</th>
+                  <th style="width:110px">Details</th>
+                </tr>
+              </thead>
+              <tbody id="sv-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pgbar" id="sv-pgbar"></div>
         </div>
-        <div class="pgbar" id="pgbar"></div>
+      </div>
+
+      <!-- Detail panel -->
+      <div id="detail-panel" hidden>
+        <div class="dp-header">
+          <div class="dp-title" id="dp-title"></div>
+          <button class="dp-close" id="dp-close" title="Close">&#10005;</button>
+        </div>
+        <div class="dp-body" id="dp-body"></div>
       </div>
 
     </div>
@@ -1242,6 +1785,12 @@
   let q = '';
   let open = new Set();
   let rowCache = {};
+  let colStructure = null;
+  let detailRow = null;
+  let dashMode = 'changes'; // 'changes' | 'structural'
+  let sectionCollapsed = {};
+  let chgType = 'semantic'; // active tab: 'semantic' | 'added' | 'removed'
+  let svCol = null; // column filter for structural view
 
   function _closeColDd() {
     const p = document.getElementById('col-dd-panel'), t = document.getElementById('col-dd-trigger');
@@ -1262,6 +1811,7 @@
   }
   document.getElementById('theme-btn').onclick = () => setTheme(theme === 'dark' ? 'light' : 'dark');
   setTheme(theme);
+  document.getElementById('dp-close').addEventListener('click', () => closeDetailPanel());
 
   // ── Drop zone: whole main area + card ─────────────────────────
   const mainDrop = document.getElementById('main-drop');
@@ -1318,10 +1868,14 @@
     document.getElementById('search').disabled = false;
     document.getElementById('empty-state').hidden = true;
     document.getElementById('data-view').hidden = false;
+    document.getElementById('export-btn').hidden = false;
 
     for (const s of Object.keys(D.sheet_diffs)) rowCache[s] = buildRows(s);
     sheet = Object.keys(D.sheet_diffs)[0];
-    col = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); q = ''; colFilter = '';
+    col = null; svCol = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); q = ''; colFilter = '';
+    colStructure = null; dashMode = 'overview'; sectionCollapsed = {}; chgType = 'semantic';
+    const _ccs = document.getElementById('col-chip-search'); if (_ccs) { _ccs.value = ''; delete _ccs.dataset.ddWired; const _cl = document.getElementById('col-cdrop-list'); if (_cl) _cl.hidden = true; }
+    const _scs = document.getElementById('sv-col-chip-search'); if (_scs) { _scs.value = ''; delete _scs.dataset.ddWired; const _sl = document.getElementById('sv-col-cdrop-list'); if (_sl) _sl.hidden = true; }
     renderSheetSelect(); renderGlobal(); renderApp();
   }
 
@@ -1391,7 +1945,9 @@
       return `<option value="${x(s)}"${s === sheet ? ' selected' : ''}>${x(s)}  (${total.toLocaleString()})</option>`;
     }).join('');
     el.onchange = e => {
-      sheet = e.target.value; col = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); colFilter = '';
+      sheet = e.target.value; col = null; svCol = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); colFilter = ''; colStructure = null; sectionCollapsed = {}; dashMode = 'overview'; chgType = 'semantic';
+      const ccs = document.getElementById('col-chip-search'); if (ccs) { ccs.value = ''; delete ccs.dataset.ddWired; const cl = document.getElementById('col-cdrop-list'); if (cl) cl.hidden = true; }
+      const scs = document.getElementById('sv-col-chip-search'); if (scs) { scs.value = ''; delete scs.dataset.ddWired; const sl = document.getElementById('sv-col-cdrop-list'); if (sl) sl.hidden = true; }
       renderApp();
     };
   }
@@ -1411,30 +1967,717 @@
        ${sR ? `<span class="wb-stat wr">sheets removed <b>${sR}</b></span>` : ''}`;
   }
 
+  function computeColStructure() {
+    const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
+    const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
+    const sortCols = arr => arr.sort((a, b) => a.length !== b.length ? a.length - b.length : a.localeCompare(b));
+    const oldNames = new Set(Object.values(mapOld).filter(Boolean));
+    const newNames = new Set(Object.values(mapNew).filter(Boolean));
+    const oldLetterByName = {};
+    for (const [c, n] of Object.entries(mapOld)) if (n) oldLetterByName[n] = c;
+    const addedCols  = sortCols(Object.entries(mapNew).filter(([, n]) => n && !oldNames.has(n)).map(([c]) => c));
+    const removedCols = sortCols(Object.entries(mapOld).filter(([, n]) => n && !newNames.has(n)).map(([c]) => c));
+    const movedCols  = Object.entries(mapNew)
+      .filter(([c, n]) => n && oldLetterByName[n] && oldLetterByName[n] !== c)
+      .map(([c, n]) => ({ from: oldLetterByName[n], to: c, name: n }))
+      .sort((a, b) => a.to.length !== b.to.length ? a.to.length - b.to.length : a.to.localeCompare(b.to));
+    colStructure = { addedCols, removedCols, movedCols };
+  }
+
   function renderApp() {
+    computeColStructure();
     renderStats();
-    renderViewToggle();
-    if (viewMode === 'column') {
-      document.getElementById('col-view-wrap').hidden = false;
-      document.getElementById('cell-view-wrap').hidden = true;
-      document.getElementById('back-to-cols').hidden = true;
-      renderColView();
+    renderDashNav();
+    const dp = document.getElementById('detail-panel');
+    if (dp && !dp.hidden) { detailRow = null; dp.hidden = true; }
+    document.getElementById('overview-view').hidden    = dashMode !== 'overview';
+    document.getElementById('changes-view').hidden     = dashMode !== 'changes';
+    document.getElementById('structural-view').hidden  = dashMode !== 'structural';
+    if      (dashMode === 'overview')    renderOverview();
+    else if (dashMode === 'changes')     renderChangesView();
+    else                                 renderStructuralView();
+  }
+
+  // ── Dashboard nav ─────────────────────────────────────────────
+  function renderDashNav() {
+    const rows = rowCache[sheet] || [];
+    const cntSemantic = rows.filter(r => r.kind === 'semantic').length;
+    const cntAdded    = rows.filter(r => r.kind === 'added').length;
+    const cntRemoved  = rows.filter(r => r.kind === 'removed').length;
+    const cntRefshift = rows.filter(r => r.kind === 'refshift').length;
+    const cntChanges  = cntSemantic + cntAdded + cntRemoved;
+    const cs = colStructure || {};
+    const structCount = (cs.addedCols||[]).length + (cs.movedCols||[]).length + (cs.removedCols||[]).length;
+    document.getElementById('dash-nav').innerHTML =
+      `<button class="dnav-tab dn-overview${dashMode==='overview' ? ' dn-active' : ''}" id="dnt-overview">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="flex-shrink:0"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="dnav-tab dn-changes${dashMode==='changes' ? ' dn-active' : ''}" id="dnt-changes">
+        <span class="dnav-dot"></span>
+        Formula Changes
+        <span class="dnav-badge">${cntChanges.toLocaleString()}</span>
+      </button>
+      <button class="dnav-tab dn-structural${dashMode==='structural' ? ' dn-active' : ''}" id="dnt-structural">
+        <span class="dnav-dot"></span>
+        Structural Shifts
+        <span class="dnav-badge">${cntRefshift.toLocaleString()}</span>
+      </button>`;
+    document.getElementById('dnt-overview').onclick   = () => { dashMode = 'overview'; renderApp(); };
+    document.getElementById('dnt-changes').onclick    = () => { dashMode = 'changes';  col = null; renderApp(); };
+    document.getElementById('dnt-structural').onclick = () => { dashMode = 'structural'; col = null; renderApp(); };
+  }
+
+  // ── Overview / Dashboard ───────────────────────────────────────
+  function renderOverview() {
+    const rows = rowCache[sheet] || [];
+    const cs   = colStructure || { addedCols:[], removedCols:[], movedCols:[] };
+    const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
+    const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
+
+    const cntSemantic = rows.filter(r => r.kind === 'semantic').length;
+    const cntAdded    = rows.filter(r => r.kind === 'added').length;
+    const cntRemoved  = rows.filter(r => r.kind === 'removed').length;
+    const cntRefshift = rows.filter(r => r.kind === 'refshift').length;
+    const cntUnch     = rows.filter(r => r.kind === 'unchanged').length;
+    const total = rows.length;
+
+    // Stat cards
+    const cards = [
+      { label:'Logic Changed', hint:'Formula logic actually changed', val:cntSemantic, cls:'sc-semantic', page:'changes' },
+      { label:'Added',         hint:'New formulas in new workbook',   val:cntAdded,    cls:'sc-added',    page:'changes' },
+      { label:'Removed',       hint:'Formulas removed',               val:cntRemoved,  cls:'sc-removed',  page:'changes' },
+      { label:'Ref Shifts',    hint:'Cell reference moved (same logic)', val:cntRefshift, cls:'sc-refshift', page:'structural' },
+      { label:'Unchanged',     hint:'Identical formulas',             val:cntUnch,     cls:'sc-unch',     page:null },
+    ];
+    const statsHtml = `<div class="ov-stats">${cards.map(c =>
+      `<div class="stat-card ${c.cls}${c.page?' sc-clickable':''}" ${c.page?`onclick="dashMode='${c.page}';renderApp()"`:''}  title="${c.hint}">
+        <div class="sc-val">${c.val.toLocaleString()}</div>
+        <div class="sc-label">${c.label}</div>
+        ${c.page ? `<div class="sc-hint">Click to explore →</div>` : ''}
+      </div>`).join('')}</div>`;
+
+    // Columns added card
+    let leftCards = '';
+    if (cs.addedCols.length) {
+      const colRows = cs.addedCols.map(c => {
+        const nm = mapNew[c] || c;
+        const affected = rows.filter(r => r.col === c).length;
+        const impact = affected > 500 ? 'High' : affected > 100 ? 'Medium' : 'Low';
+        const chipCls = affected > 500 ? 'ov-chip-high' : affected > 100 ? 'ov-chip-medium' : 'ov-chip-low';
+        return `<tr>
+          <td style="font-weight:600">${x(nm)}</td>
+          <td><span class="ov-col-badge">${x(c)}</span></td>
+          <td>${affected.toLocaleString()} formulas</td>
+          <td><span class="ov-impact-chip ${chipCls}">${impact}</span></td>
+        </tr>`;
+      }).join('');
+      leftCards += `<div class="ov-card">
+        <div class="ov-card-hdr">
+          <span class="ov-card-title ov-ct-added">&#43; Columns Added (${cs.addedCols.length})</span>
+          <span class="ov-card-sub">Newly inserted in the new workbook — caused downstream shifts</span>
+        </div>
+        <table class="ov-table">
+          <thead><tr>
+            <th>Business Column</th><th>Excel Letter</th><th>Formulas Affected</th><th>Impact</th>
+          </tr></thead>
+          <tbody>${colRows}</tbody>
+        </table>
+      </div>`;
+    }
+
+    // Columns removed card
+    if (cs.removedCols.length) {
+      const rows2 = cs.removedCols.map(c => {
+        const nm = mapOld[c] || c;
+        return `<tr>
+          <td style="font-weight:600">${x(nm)}</td>
+          <td><span class="ov-col-badge" style="background:rgba(199,54,80,.1);color:var(--c-removed);border-color:rgba(199,54,80,.3)">${x(c)}</span></td>
+          <td style="color:var(--c-removed)">Removed from new workbook</td>
+        </tr>`;
+      }).join('');
+      leftCards += `<div class="ov-card" style="margin-top:0">
+        <div class="ov-card-hdr">
+          <span class="ov-card-title" style="color:var(--c-removed)">&#8722; Columns Removed (${cs.removedCols.length})</span>
+          <span class="ov-card-sub">Present in old workbook, absent in new</span>
+        </div>
+        <table class="ov-table">
+          <thead><tr><th>Business Column</th><th>Excel Letter</th><th>Status</th></tr></thead>
+          <tbody>${rows2}</tbody>
+        </table>
+      </div>`;
+    }
+
+    // Logic Changed columns card
+    const semanticRows = rows.filter(r => r.kind === 'semantic');
+    if (semanticRows.length) {
+      const colCounts = {};
+      for (const r of semanticRows) colCounts[r.col] = (colCounts[r.col] || 0) + 1;
+      const semanticCols = Object.entries(colCounts).sort((a, b) => b[1] - a[1]);
+      const SHOW = 10;
+      const lcRows = semanticCols.slice(0, SHOW).map(([c, cnt]) => {
+        const nm = colName(c, sheet) || mapNew[c] || c;
+        return `<tr class="ov-lc-row" onclick="dashMode='changes';chgType='semantic';col='${x(c)}';renderApp()">
+          <td style="font-weight:600">${x(nm)}</td>
+          <td><span class="ov-col-badge semantic">${x(c)}</span></td>
+          <td style="color:var(--c-semantic);font-variant-numeric:tabular-nums">${cnt.toLocaleString()}</td>
+        </tr>`;
+      }).join('');
+      const moreLink = semanticCols.length > SHOW
+        ? `<div style="padding:8px 16px;text-align:center"><button class="ov-card-action" onclick="dashMode='changes';chgType='semantic';col=null;renderApp()">+ ${semanticCols.length - SHOW} more — View All &#8594;</button></div>`
+        : '';
+      leftCards += `<div class="ov-card" style="margin-top:0">
+        <div class="ov-card-hdr">
+          <span class="ov-card-title ov-ct-logic">&#9679; Logic Changed Columns (${semanticCols.length})</span>
+          <button class="ov-card-action" onclick="dashMode='changes';chgType='semantic';col=null;renderApp()">View all &#8594;</button>
+        </div>
+        <table class="ov-table">
+          <thead><tr><th>Business Column</th><th>Excel Letter</th><th>Changes</th></tr></thead>
+          <tbody>${lcRows}</tbody>
+        </table>
+        ${moreLink}
+      </div>`;
+    }
+
+    if (!leftCards) {
+      leftCards = `<div class="ov-empty-card">
+        <div style="font-size:28px;margin-bottom:8px">&#10003;</div>
+        <strong>No columns added or removed</strong><br>
+        Column structure is identical between workbooks.
+      </div>`;
+    }
+
+    // Change breakdown card (right)
+    const bkRows = cards.filter(c => c.val > 0).map(c => {
+      const pct = total ? Math.round(c.val/total*100) : 0;
+      return `<div class="ov-bk-row ${c.cls}">
+        <span class="ov-bk-label">${c.label}</span>
+        <div class="ov-bk-bar-wrap"><div class="ov-bk-bar" style="width:${pct}%"></div></div>
+        <span class="ov-bk-num">${c.val.toLocaleString()}</span>
+        <span class="ov-bk-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+    const summaryCard = `<div class="ov-card">
+      <div class="ov-card-hdr">
+        <span class="ov-card-title ov-ct-neutral">Change Breakdown</span>
+        <span class="ov-card-sub">${total.toLocaleString()} total cells analyzed</span>
+      </div>
+      <div class="ov-breakdown">${bkRows}</div>
+      <button class="ov-explore-btn" onclick="dashMode='changes';renderApp()">Explore Formula Changes &#8594;</button>
+    </div>`;
+
+    // Columns shifted card (right, below summary)
+    let shiftCard = '';
+    if (cs.movedCols.length) {
+      const shiftRows = cs.movedCols.slice(0, 8).map(m => {
+        const affected = rows.filter(r => r.col === m.to).length;
+        return `<tr>
+          <td style="font-weight:500">${x(m.name)}</td>
+          <td><span class="ov-col-badge shifted">${x(m.from)}</span><span class="ov-arrow">&#8594;</span><span class="ov-col-badge shifted">${x(m.to)}</span></td>
+          <td style="color:var(--c-refshift)">${affected.toLocaleString()}</td>
+        </tr>`;
+      }).join('');
+      const moreLink = cs.movedCols.length > 8
+        ? `<div style="padding:8px 16px;text-align:center"><button class="ov-card-action" onclick="dashMode='structural';renderApp()">+ ${cs.movedCols.length-8} more — View All &#8594;</button></div>`
+        : '';
+      shiftCard = `<div class="ov-card">
+        <div class="ov-card-hdr">
+          <span class="ov-card-title ov-ct-shifted">&#8644; Columns Shifted (${cs.movedCols.length})</span>
+          <button class="ov-card-action" onclick="dashMode='structural';renderApp()">View all &#8594;</button>
+        </div>
+        <table class="ov-table">
+          <thead><tr><th>Business Column</th><th>Old &#8594; New Position</th><th>Affected</th></tr></thead>
+          <tbody>${shiftRows}</tbody>
+        </table>
+        ${moreLink}
+      </div>`;
+    }
+
+    document.getElementById('overview-view').innerHTML =
+      `<div style="max-width:1280px;padding:22px 24px">
+        <div class="ov-page-hdr">
+          <div class="ov-page-title">Overview</div>
+          <div class="ov-page-sub">Formula comparison summary for this sheet</div>
+        </div>
+        ${statsHtml}
+        <div class="ov-grid">
+          <div class="ov-left">${leftCards}</div>
+          <div class="ov-right">${summaryCard}${shiftCard}</div>
+        </div>
+      </div>`;
+  }
+
+  // ── Changes view ──────────────────────────────────────────────
+  function chgTableHtml(rows, tbody_id) {
+    if (!rows.length) return '<p style="padding:16px;color:var(--text-muted);font-size:12px">No rows.</p>';
+    const thead = `<thead><tr>
+      <th class="tc-sno">#</th>
+      <th style="min-width:170px">Business Column</th>
+      <th style="width:76px">Cell</th>
+      <th style="width:110px">Type</th>
+      <th style="min-width:160px">Reason</th>
+      <th>Old Formula</th>
+      <th>New Formula</th>
+      <th style="width:110px">Details</th>
+    </tr></thead>`;
+    return `<table><${thead}<tbody id="${tbody_id}">${rows.map((r,i)=>rowHtml(r,sheet+'\xA7'+r.cell,i+1)).join('')}</tbody></table>`;
+  }
+
+  function wireDetBtns(tbodyId, rows) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.querySelectorAll('.det-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const tr = btn.closest('tr');
+        const id = tr ? tr.dataset.id : null;
+        if (!id) return;
+        const r = rows.find(row => (sheet + '\xA7' + row.cell) === id);
+        if (!r) return;
+        if (detailRow && detailRow.cell === r.cell && detailRow.col === r.col) closeDetailPanel();
+        else showDetailPanel(r);
+      });
+    });
+  }
+
+  function renderChangesView() {
+    const allRows = rowCache[sheet] || [];
+    const baseRows = col ? allRows.filter(r => r.col === col) : allRows;
+
+    // Tab definitions with counts
+    const TABS = [
+      { kind: 'semantic', label: 'Logic Changed', cls: 'ct-semantic' },
+      { kind: 'added',    label: 'Added',          cls: 'ct-added'    },
+      { kind: 'removed',  label: 'Removed',        cls: 'ct-removed'  },
+    ].map(t => ({ ...t, count: baseRows.filter(r => r.kind === t.kind).length }));
+
+    // If current chgType has 0 rows, fall back to first non-empty tab
+    if (!baseRows.some(r => r.kind === chgType)) {
+      const first = TABS.find(t => t.count > 0);
+      if (first) chgType = first.kind;
+    }
+
+    // Render type tabs
+    const tabBar = document.getElementById('chg-type-bar');
+    tabBar.innerHTML = TABS.map(t =>
+      t.count > 0
+        ? `<button class="ct-tab ${t.cls}${chgType===t.kind?' ct-active':''}"
+             onclick="chgType='${t.kind}';renderChangesView()">
+             ${t.label} <span class="ct-badge">${t.count.toLocaleString()}</span>
+           </button>`
+        : `<button class="ct-tab ct-tab-empty" disabled>${t.label} <span class="ct-badge">0</span></button>`
+    ).join('');
+
+    // Render only the active tab's rows
+    const tabRows = baseRows.filter(r => r.kind === chgType);
+    const body = document.getElementById('cv-body');
+
+    if (!tabRows.length) {
+      body.innerHTML = '<p style="padding:32px;text-align:center;color:var(--text-muted)">No rows match.</p>';
     } else {
-      document.getElementById('col-view-wrap').hidden = true;
-      document.getElementById('cell-view-wrap').hidden = false;
-      document.getElementById('back-to-cols').hidden = false;
-      renderCols(); renderTypeTabs(); renderReasonTabs(); renderTable();
+      body.innerHTML = `<table>
+        <thead><tr>
+          <th class="tc-sno">#</th>
+          <th style="min-width:170px">Business Column</th>
+          <th style="width:76px">Cell</th>
+          <th style="width:104px">Type</th>
+          <th style="min-width:160px">Reason</th>
+          <th>Old Formula</th>
+          <th>New Formula</th>
+          <th style="width:110px">Details</th>
+        </tr></thead>
+        <tbody id="cv-tbody"></tbody>
+      </table>`;
+
+      function applySearch() {
+        const cvQ = (document.getElementById('cv-search')?.value || '').toLowerCase().trim();
+        const filtered = cvQ ? tabRows.filter(r => {
+          const nm = (colName(r.col, sheet) || r.col).toLowerCase();
+          return nm.includes(cvQ)
+            || r.cell.toLowerCase().includes(cvQ)
+            || (r.oldF || r.formula || '').toLowerCase().includes(cvQ)
+            || (r.newF || '').toLowerCase().includes(cvQ)
+            || (r.reason || '').toLowerCase().includes(cvQ);
+        }) : tabRows;
+
+        const tbody = document.getElementById('cv-tbody');
+        if (!tbody) return;
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted)">No results match.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = filtered.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('');
+        wireDetBtns('cv-tbody', filtered);
+      }
+
+      applySearch();
+
+      const cvSrch = document.getElementById('cv-search');
+      if (cvSrch) {
+        cvSrch.oninput  = applySearch;
+        cvSrch.onkeydown = e => { if (e.key === 'Escape') { cvSrch.value = ''; applySearch(); } };
+      }
+    }
+
+    // Column searchable dropdown
+    renderColDropdown('col-chip-search', 'col-cdrop-list', 'col-cdrop-clear', allRows, false);
+  }
+
+  function renderStructuralView() {
+    const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
+    const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
+    const cs = colStructure;
+
+    // Insert zone — compact single-line bar
+    const insEl = document.getElementById('sv-insert-zone');
+    if (cs && cs.addedCols.length) {
+      insEl.hidden = false;
+      insEl.innerHTML =
+        `<span class="sv-insert-title">New Column${cs.addedCols.length>1?'s':''} Inserted</span>` +
+        `<div class="sv-insert-cards">` +
+        cs.addedCols.map(c =>
+          `<div class="sv-insert-card">
+            <span class="sv-insert-letter">${x(c)}</span>
+            <span class="sv-insert-name">${x(mapNew[c] || c)}</span>
+            <span class="sv-insert-sub">→ caused ${cs.movedCols.length} col${cs.movedCols.length!==1?'s':''} to shift</span>
+          </div>`).join('') +
+        `</div>`;
+    } else {
+      insEl.hidden = true;
+    }
+
+    // Shift grid
+    const shiftEl = document.getElementById('sv-shift-zone');
+    if (cs && cs.movedCols.length) {
+      shiftEl.hidden = false;
+      shiftEl.innerHTML = `<div class="sv-shift-title">Shifted Columns (${cs.movedCols.length})</div>
+        <div class="sv-shift-grid">
+          ${cs.movedCols.map(m => `<div class="sv-shift-item">
+            <span class="sv-shift-name" title="${x(m.name)}">${x(m.name)}</span>
+            <span class="sv-shift-arrow">
+              <span class="sv-letter">${x(m.from)}</span>
+              <span class="sv-arrow-icon">→</span>
+              <span class="sv-letter">${x(m.to)}</span>
+            </span>
+          </div>`).join('')}
+        </div>`;
+    } else {
+      shiftEl.hidden = true;
+    }
+
+    // Ref shift table
+    const allRows = rowCache[sheet] || [];
+    const refRows = svCol
+      ? allRows.filter(r => r.kind === 'refshift' && r.col === svCol)
+      : allRows.filter(r => r.kind === 'refshift');
+
+    document.getElementById('sv-sec-hdr').innerHTML =
+      `<span class="sv-sec-label">Reference Shifts</span>
+       <span class="sv-sec-count">${refRows.length.toLocaleString()} cell${refRows.length!==1?'s':''} — formula address changed but logic is identical</span>`;
+
+    const tbody = document.getElementById('sv-tbody');
+    tbody.innerHTML = refRows.length
+      ? refRows.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('')
+      : '<tr><td colspan="8" class="empty">No reference shifts found.</td></tr>';
+    wireDetBtns('sv-tbody', refRows);
+
+    renderColDropdown('sv-col-chip-search', 'sv-col-cdrop-list', 'sv-col-cdrop-clear', allRows.filter(r=>r.kind==='refshift'), true);
+  }
+
+  function renderColDropdown(inputId, listId, clearId, rows, isSv) {
+    const inputEl = document.getElementById(inputId);
+    const listEl  = document.getElementById(listId);
+    const clearEl = document.getElementById(clearId);
+    if (!inputEl || !listEl) return;
+
+    const cur = isSv ? svCol : col;
+    const q   = inputEl.value.toLowerCase().trim();
+
+    const colCounts = {};
+    for (const r of rows) colCounts[r.col] = (colCounts[r.col] || 0) + 1;
+
+    let entries = Object.entries(colCounts).sort((a, b) => b[1] - a[1]);
+    if (q) {
+      entries = entries.filter(([c]) => {
+        const nm = (colName(c, sheet) || c).toLowerCase();
+        return nm.includes(q) || c.toLowerCase().includes(q);
+      });
+    }
+
+    if (clearEl) clearEl.hidden = !cur;
+    if (!q) inputEl.placeholder = cur ? (colName(cur, sheet) || cur) : 'All columns…';
+
+    const allOpt = q ? '' :
+      `<div class="cdrop-opt${!cur ? ' cdrop-active' : ''}" data-col="">
+        <span class="cdrop-name">All columns</span>
+        <span class="cdrop-cnt">${rows.length.toLocaleString()}</span>
+      </div>`;
+
+    let optsHtml = entries.map(([c, cnt]) => {
+      const nm = colName(c, sheet) || c;
+      let hiNm = x(nm);
+      if (q) {
+        const lo = nm.toLowerCase();
+        const idx = lo.indexOf(q);
+        if (idx >= 0) {
+          hiNm = x(nm.slice(0, idx))
+            + `<mark class="cdrop-mark">${x(nm.slice(idx, idx + q.length))}</mark>`
+            + x(nm.slice(idx + q.length));
+        }
+      }
+      // Also highlight the column letter if the query matches it
+      let hiLetter = x(c);
+      if (q && c.toLowerCase().includes(q)) {
+        const idx = c.toLowerCase().indexOf(q);
+        hiLetter = x(c.slice(0, idx))
+          + `<mark class="cdrop-mark">${x(c.slice(idx, idx + q.length))}</mark>`
+          + x(c.slice(idx + q.length));
+      }
+      return `<div class="cdrop-opt${cur === c ? ' cdrop-active' : ''}" data-col="${x(c)}">
+        <span class="cdrop-name">${hiNm}</span>
+        <span class="cdrop-letter">${hiLetter}</span>
+        <span class="cdrop-cnt">${cnt.toLocaleString()}</span>
+      </div>`;
+    }).join('');
+
+    if (!entries.length && q) optsHtml = `<div class="cdrop-no-match">No match for "${x(q)}"</div>`;
+    listEl.innerHTML = allOpt + optsHtml;
+
+    // Position using fixed coords so overflow:hidden parents don't clip it
+    const triggerEl = inputEl.closest('.cdrop-trigger') || inputEl.parentElement;
+    const rect = triggerEl.getBoundingClientRect();
+    listEl.style.top      = (rect.bottom + 2) + 'px';
+    listEl.style.left     = rect.left + 'px';
+    listEl.style.minWidth = rect.width + 'px';
+
+    // Mousedown on options (e.preventDefault keeps focus on input → blur won't fire)
+    listEl.querySelectorAll('.cdrop-opt').forEach(opt => {
+      opt.onmousedown = e => {
+        e.preventDefault();
+        const selected = opt.dataset.col || null;
+        inputEl.value = '';
+        listEl.hidden = true;
+        if (isSv) { svCol = selected; renderStructuralView(); }
+        else      { col   = selected; renderChangesView(); }
+      };
+    });
+
+    if (!inputEl.dataset.ddWired) {
+      inputEl.dataset.ddWired = '1';
+
+      inputEl.onfocus = () => {
+        inputEl.value = '';
+        inputEl.placeholder = 'Search columns…';
+        listEl.hidden = false;
+        renderColDropdown(inputId, listId, clearId, inputEl._ddRows || rows, isSv);
+      };
+      inputEl.oninput = () => {
+        listEl.hidden = false;
+        renderColDropdown(inputId, listId, clearId, inputEl._ddRows || rows, isSv);
+      };
+      inputEl.onblur = () => {
+        setTimeout(() => {
+          listEl.hidden = true;
+          inputEl.value = '';
+          const c2 = isSv ? svCol : col;
+          inputEl.placeholder = c2 ? (colName(c2, sheet) || c2) : 'All columns…';
+        }, 150);
+      };
+      inputEl.onkeydown = e => {
+        if (e.key === 'Escape') { inputEl.value = ''; inputEl.blur(); }
+        if (e.key === 'Enter') {
+          const first = listEl.querySelector('.cdrop-opt');
+          if (first) first.onmousedown({ preventDefault() {} });
+        }
+      };
+
+      if (clearEl) {
+        clearEl.onclick = e => {
+          e.stopPropagation();
+          inputEl.value = '';
+          if (isSv) { svCol = null; renderStructuralView(); }
+          else      { col   = null; renderChangesView(); }
+        };
+      }
+    }
+
+    inputEl._ddRows = rows;
+  }
+
+  function renderColChips(elId, rows, onAll, activCol, onCol) {
+    const isSv = elId === 'sv-col-chips';
+    const searchInputId = isSv ? 'sv-col-chip-search' : 'col-chip-search';
+    const searchEl = document.getElementById(searchInputId);
+    const q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
+    // Build unique columns from rows (sorted by count desc)
+    const colSet = {};
+    for (const r of rows) { if (!colSet[r.col]) colSet[r.col] = 0; colSet[r.col]++; }
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const cur = isSv ? svCol : col;
+
+    let entries = Object.entries(colSet).sort((a,b) => b[1]-a[1]);
+    if (q) entries = entries.filter(([c]) => {
+      const nm = (colName(c, sheet) || c).toLowerCase();
+      return nm.includes(q) || c.toLowerCase().includes(q);
+    });
+
+    el.innerHTML = (q ? '' : `<button class="ttab${!cur?' on':''}" data-col="">All</button>`) +
+      entries.map(([c,cnt]) => {
+        const nm = colName(c, sheet);
+        const label = nm || c;
+        let hi = x(label);
+        if (q) {
+          const idx = label.toLowerCase().indexOf(q);
+          if (idx >= 0) hi = x(label.slice(0,idx)) + '<mark style="background:rgba(201,121,36,.3);border-radius:2px">' + x(label.slice(idx, idx+q.length)) + '</mark>' + x(label.slice(idx+q.length));
+        }
+        return `<button class="ttab${cur===c?' on':''}" data-col="${x(c)}" title="${x(label)}">${hi} <span style="opacity:.6;font-size:10px">${cnt}</span></button>`;
+      }).join('') +
+      (q && !entries.length ? `<span style="font-size:11px;color:var(--text-muted);padding:0 6px">No match</span>` : '');
+
+    el.querySelectorAll('.ttab').forEach(b => {
+      b.onclick = () => {
+        // Chip click → clear search, update state, full re-render
+        if (searchEl) { searchEl.value = ''; delete searchEl.dataset.wired; }
+        if (isSv) { svCol = b.dataset.col || null; renderStructuralView(); }
+        else      { col   = b.dataset.col || null; renderChangesView(); }
+      };
+    });
+
+    // Wire search input: typing only re-renders the chips (fast), NOT the whole view
+    if (searchEl && !searchEl.dataset.wired) {
+      searchEl.dataset.wired = '1';
+      searchEl._chipState = { elId, rows, onAll, activCol, onCol };
+      searchEl.oninput = () => {
+        const s = searchEl._chipState;
+        renderColChips(s.elId, s.rows, s.onAll, s.activCol, s.onCol);
+      };
+      searchEl.onkeydown = e => {
+        if (e.key === 'Escape') {
+          searchEl.value = '';
+          const s = searchEl._chipState;
+          renderColChips(s.elId, s.rows, s.onAll, s.activCol, s.onCol);
+        }
+      };
+    } else if (searchEl) {
+      // Keep cached state fresh on re-renders (e.g. sheet change)
+      searchEl._chipState = { elId, rows, onAll, activCol, onCol };
     }
   }
 
-  // ── View toggle ───────────────────────────────────────────────
-  function renderViewToggle() {
-    document.getElementById('view-toggle').innerHTML =
-      `<button class="vtab${viewMode === 'column' ? ' on' : ''}" id="vt-col">Column</button>` +
-      `<button class="vtab${viewMode === 'cell' ? ' on' : ''}" id="vt-cell">Cell</button>`;
-    document.getElementById('vt-col').onclick = () => { viewMode = 'column'; col = null; type = 'all'; reason = 'all'; renderApp(); };
-    document.getElementById('vt-cell').onclick = () => { viewMode = 'cell'; col = null; renderApp(); };
-    document.getElementById('back-to-cols').onclick = () => { viewMode = 'column'; col = null; type = 'all'; reason = 'all'; renderApp(); };
+  function buildReasonBullets(r) {
+    const bullets = [];
+    if      (r.kind === 'semantic')  bullets.push('<span class="rb-logic">&#8226; Business logic changed</span>');
+    else if (r.kind === 'refshift')  bullets.push('<span class="rb-nochange">&#8226; No logic change</span>');
+    else if (r.kind === 'added')     bullets.push('<span class="rb-struct">&#8226; Formula added</span>');
+    else if (r.kind === 'removed')   bullets.push('<span class="rb-removed">&#8226; Formula removed</span>');
+    if (r.reason) {
+      const t = r.reason.type;
+      if (t === 'column_shifted' || t === 'column_shifted_and_logic_changed') {
+        const m = r.reason.label.match(/\(([A-Z]+→[A-Z]+)\)/);
+        const arrow = m ? m[1] : '';
+        bullets.push('<span class="rb-shift">&#8226; Structural Shift' + (arrow ? ': ' + x(arrow) : '') + '</span>');
+        if (colStructure && arrow) {
+          const mapNew2 = ((D.column_mapping || {}).new || {})[sheet] || {};
+          if (colStructure.addedCols.length === 1) {
+            const root = colStructure.addedCols[0];
+            bullets.push('<span class="rb-cause">  (Inserted: ' + x(mapNew2[root] || root) + ')</span>');
+          }
+        }
+      } else if (t === 'row_added')    { bullets.push('<span class="rb-struct">&#8226; New row added</span>'); }
+      else if (t === 'row_removed')    { bullets.push('<span class="rb-struct">&#8226; Row removed</span>'); }
+      else if (t === 'column_added')   { bullets.push('<span class="rb-shift">&#8226; New column</span>'); }
+      else if (t === 'column_removed') { bullets.push('<span class="rb-shift">&#8226; Column removed</span>'); }
+    }
+    return bullets.length ? '<div class="reason-bullets">' + bullets.join('') + '</div>' : '<span style="opacity:.25">—</span>';
+  }
+
+  function rowHtml(r, id, sno) {
+    const nm = colName(r.col, sheet);
+    const displayName = nm || r.col;
+    let shiftArrow = '';
+    if (r.reason) {
+      const t = r.reason.type;
+      if (t === 'column_shifted' || t === 'column_shifted_and_logic_changed') {
+        const m = r.reason.label.match(/\(([A-Z]+→[A-Z]+)\)/);
+        if (m) shiftArrow = m[1];
+      }
+    }
+    const bizHtml = '<div class="biz-name">' + x(displayName) + '</div>' +
+      (shiftArrow ? '<div class="biz-shift">Shifted: ' + x(shiftArrow) + '</div>' : '');
+    const typeMap = {
+      added:['tp-added','ADDED'], removed:['tp-removed','REMOVED'],
+      semantic:['tp-semantic','LOGIC CHANGED'], refshift:['tp-refshift','REF SHIFT'],
+      unchanged:['tp-unch','UNCHANGED']
+    };
+    const [tpCls, tpLbl] = typeMap[r.kind] || ['tp-unch', r.kind.toUpperCase()];
+    let oldF = '', newF = '';
+    if      (r.kind === 'added')     { newF = '<span class="ftext">' + x(r.formula) + '</span>'; }
+    else if (r.kind === 'removed')   { oldF = '<span class="ftext">' + x(r.formula) + '</span>'; }
+    else if (r.kind === 'unchanged') { oldF = '<span class="ftext" style="color:var(--text-muted);font-style:italic">unchanged</span>'; }
+    else { oldF = '<span class="ftext">' + x(r.oldF) + '</span>'; newF = '<span class="ftext">' + x(r.newF) + '</span>'; }
+    const isActive = detailRow && detailRow.cell === r.cell && detailRow.col === r.col;
+    return '<tr class="k-' + r.kind + (isActive ? ' det-active-row' : '') + '" data-id="' + x(id) + '">' +
+      '<td class="tc-sno">' + sno.toLocaleString() + '</td>' +
+      '<td class="tc-biz">' + bizHtml + '</td>' +
+      '<td class="tc-ref"><span class="cell-badge">' + x(r.cell) + '</span></td>' +
+      '<td class="tc-type"><span class="type-pill ' + tpCls + '">' + tpLbl + '</span></td>' +
+      '<td class="tc-reason">' + buildReasonBullets(r) + '</td>' +
+      '<td class="tc-f">' + oldF + '</td>' +
+      '<td class="tc-f">' + newF + '</td>' +
+      '<td class="tc-det"><button class="det-btn">View Details</button></td>' +
+      '</tr>';
+  }
+
+  function showDetailPanel(r) {
+    detailRow = r;
+    const nm = colName(r.col, sheet);
+    const displayName = nm || r.col;
+    const typeMap = { added:['tp-added','ADDED'], removed:['tp-removed','REMOVED'], semantic:['tp-semantic','LOGIC CHANGED'], refshift:['tp-refshift','REF SHIFT'], unchanged:['tp-unch','UNCHANGED'] };
+    const [tpCls, tpLbl] = typeMap[r.kind] || ['tp-unch', r.kind.toUpperCase()];
+    document.getElementById('dp-title').innerHTML =
+      '<strong>' + x(displayName) + '</strong>' +
+      ' <span class="dp-meta">Cell: <strong>' + x(r.cell) + '</strong></span>' +
+      ' <span class="dp-meta">Type: <span class="type-pill ' + tpCls + '">' + tpLbl + '</span></span>';
+    let body = '';
+    if (r.kind === 'added') {
+      body += '<div class="dp-sec"><h4>New Formula</h4><div class="xcode">' + x(r.formula) + '</div>';
+      if (r.reason) body += '<h4 style="margin-top:8px">Reason</h4><p class="dp-text">' + x(r.reason.label) + '</p>';
+      body += '</div>';
+    } else if (r.kind === 'removed') {
+      body += '<div class="dp-sec"><h4>Removed Formula</h4><div class="xcode">' + x(r.formula) + '</div>';
+      if (r.reason) body += '<h4 style="margin-top:8px">Reason</h4><p class="dp-text">' + x(r.reason.label) + '</p>';
+      body += '</div>';
+    } else if (r.kind === 'unchanged') {
+      body += '<div class="dp-sec"><h4>Formula</h4><div class="xcode">' + x(r.formula||'') + '</div><p class="dp-text" style="margin-top:6px;color:var(--text-muted)">Formula is unchanged.</p></div>';
+    } else {
+      body += '<div class="dp-sec"><h4>Old Formula</h4><div class="xcode">' + x(r.oldF) + '</div>';
+      if (r.oldN) body += '<h4 style="margin-top:8px">Normalized</h4><div class="xcode norm">' + x(r.oldN) + '</div>';
+      body += '</div>';
+      body += '<div class="dp-sec"><h4>New Formula</h4><div class="xcode">' + x(r.newF) + '</div>';
+      if (r.newN) body += '<h4 style="margin-top:8px">Normalized</h4><div class="xcode norm">' + x(r.newN) + '</div>';
+      const bad = r.kind === 'semantic';
+      body += '<h4 style="margin-top:8px">Impact</h4><p class="' + (bad?'dp-impact-bad':'dp-impact-ok') + '">' + (bad?'Affects calculation result.':'No impact on calculation result.') + '</p>';
+      if (r.alignedF) {
+        body += '<h4 style="margin-top:8px">Previously at ' + x(r.alignedCell) + '</h4>';
+        body += '<div class="xcode">' + x(r.alignedF) + '</div>';
+        if (r.alignedN) body += '<div class="xcode norm" style="margin-top:4px">' + x(r.alignedN) + '</div>';
+      }
+      body += '</div>';
+    }
+    document.getElementById('dp-body').innerHTML = body;
+    const panel = document.getElementById('detail-panel');
+    panel.hidden = false; panel.scrollTop = 0;
+    if (dashMode === 'changes') renderChangesView();
+    else renderStructuralView();
+  }
+
+  function closeDetailPanel() {
+    detailRow = null;
+    document.getElementById('detail-panel').hidden = true;
+    if (dashMode === 'changes') renderChangesView();
+    else renderStructuralView();
   }
 
   // ── Column view ───────────────────────────────────────────────
@@ -1490,6 +2733,7 @@
       .map(([c, n]) => ({ from: oldLetterByName[n], to: c, name: n }))
       .sort((a, b) => a.to.length !== b.to.length ? a.to.length - b.to.length : a.to.localeCompare(b.to));
     const movedToLetters = new Set(movedCols.map(m => m.to));
+    colStructure = { addedCols, removedCols, movedCols };
 
     const isNew = c => addedCols.includes(c);
     const isDel = c => removedCols.includes(c);
@@ -1658,8 +2902,12 @@
   }
 
   function renderStats() {
+    const strip = document.getElementById('stats-strip');
+    // Hide strip on overview — the overview has its own stat cards
+    if (dashMode === 'overview') { strip.hidden = true; return; }
+    strip.hidden = false;
     const s = stats(sheet);
-    document.getElementById('stats-strip').innerHTML = `
+    strip.innerHTML = `
     <div class="scard sa"><div class="snum">${s.added.toLocaleString()}</div><div class="slabel">Added</div></div>
     <div class="scard sr"><div class="snum">${s.removed.toLocaleString()}</div><div class="slabel">Removed</div></div>
     <div class="scard ss"><div class="snum">${s.semantic.toLocaleString()}</div><div class="slabel">Logic Changed</div></div>
@@ -1689,7 +2937,7 @@
       { value: '', label: 'All columns  —  (' + colStatsLabel(totals) + ')' },
       ...colRows.map(s => {
         const nm = colName(s.col, sheet);
-        const lbl = nm ? s.col + '  -  ' + nm : s.col;
+        const lbl = nm ? nm + '  (' + s.col + ')' : s.col;
         return { value: s.col, label: lbl + '  —  (' + colStatsLabel(s) + ')' };
       })
     ];
@@ -1824,7 +3072,7 @@
     } else {
       tbody.innerHTML = rows.flatMap((r, i) => {
         const id = sheet + '§' + r.cell, isOpen = open.has(id);
-        return isOpen ? [rowHtml(r, id, isOpen, i + 1), expandHtml(r)] : [rowHtml(r, id, isOpen, i + 1)];
+        return isOpen ? [_legacyRowHtml(r, id, isOpen, i + 1), expandHtml(r)] : [_legacyRowHtml(r, id, isOpen, i + 1)];
       }).join('');
       tbody.querySelectorAll('tr[data-id]').forEach(tr => {
         tr.onclick = () => { const id = tr.dataset.id; open.has(id) ? open.delete(id) : open.add(id); renderTable(); };
@@ -1839,7 +3087,7 @@
     return `<span class="reason-tag rt-${x(reason.type)}" title="${x(reason.label)}">${x(reason.label)}</span>`;
   }
 
-  function rowHtml(r, id, isOpen, sno) {
+  function _legacyRowHtml(r, id, isOpen, sno) {
     const cls = `k-${r.kind}${isOpen ? ' xopen' : ''}`;
     const tog = `<span style="font-size:9px">${isOpen ? '▲' : '▼'}</span>`;
     let oldF = '', newF = '', arr = '';
@@ -1975,7 +3223,49 @@
     }
   });
 
+  // ── Export Report ─────────────────────────────────────────────
+  document.getElementById('export-btn').addEventListener('click', async () => {
+    if (!D || !D.sheet_diffs) return;
+    const btn = document.getElementById('export-btn');
+    const orig = btn.textContent;
+    btn.textContent = 'Exporting…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(D),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Export failed: ' + (err.error || res.statusText));
+        return;
+      }
+      const blob = await res.blob();
+      const cd = res.headers.get('Content-Disposition') || '';
+      const m = cd.match(/filename="?([^";\n]+)"?/);
+      const filename = m ? m[1] : 'comparison_report.xlsx';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Export error: ' + e.message + ' (is server.py running?)');
+    } finally {
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
+  });
+
   loadHistory();
+
+  // ── Detail panel close ────────────────────────────────────────
+  document.addEventListener('click', e => {
+    const btn = document.getElementById('dp-close');
+    if (btn && btn === e.target) closeDetailPanel();
+  });
 
   // ── Escape ────────────────────────────────────────────────────
   function x(s) {

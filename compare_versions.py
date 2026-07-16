@@ -7,12 +7,14 @@ Usage:
 
 Options:
     --save     <file>   Save full JSON report to <file>.
+    --export   <file>   Export Excel audit report to <file> (e.g. report.xlsx).
     --max-diff <N>      Max formula changes to print per sheet (default 50; 0 = all).
 
 Examples:
     python compare_versions.py v1.xlsx v2.xlsx
     python compare_versions.py v1.xlsx v2.xlsx --save report.json
-    python compare_versions.py v1.xlsx v2.xlsx --save report.json --max-diff 20
+    python compare_versions.py v1.xlsx v2.xlsx --export audit.xlsx
+    python compare_versions.py v1.xlsx v2.xlsx --save report.json --export audit.xlsx --max-diff 20
 """
 
 import os
@@ -29,6 +31,7 @@ if hasattr(sys.stdout, "reconfigure"):
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), 'config', '.env'))
 
 from src.compare_service import run_comparison
+from src.excel_exporter import export_report
 # from src.math_equivalence import find_equivalent_pairs
 # from src.comparison_validator import validate_results, generate_validation_report
 
@@ -110,10 +113,11 @@ def _print_sheet_diff(sheet_name: str, diff: dict, max_diff: int = 50):
 
 
 def _parse_args():
-    """Parse sys.argv and return (old_path, new_path, save_path, max_diff)."""
+    """Parse sys.argv and return (old_path, new_path, save_path, export_path, max_diff)."""
     args = sys.argv[1:]
-    save_path = None
-    max_diff  = 50
+    save_path   = None
+    export_path = None
+    max_diff    = 50
 
     def _pop_flag(flag):
         if flag not in args:
@@ -127,6 +131,10 @@ def _parse_args():
     if val is not None:
         save_path = val
 
+    val = _pop_flag("--export")
+    if val is not None:
+        export_path = val
+
     val = _pop_flag("--max-diff")
     if val is not None:
         try:
@@ -137,14 +145,15 @@ def _parse_args():
     if len(args) != 2:
         print("Usage: python compare_versions.py <old.xlsx> <new.xlsx>")
         print("       [--save output.json]")
+        print("       [--export audit.xlsx]")
         print("       [--max-diff N]   (default 50; 0 = show all)")
         sys.exit(1)
 
-    return args[0], args[1], save_path, max_diff
+    return args[0], args[1], save_path, export_path, max_diff
 
 
 def main():
-    old_path, new_path, save_path, max_diff = _parse_args()
+    old_path, new_path, save_path, export_path, max_diff = _parse_args()
 
     print(f"Loading OLD: {os.path.basename(old_path)}")
     print(f"Loading NEW: {os.path.basename(new_path)}")
@@ -212,6 +221,12 @@ def main():
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
         print(f"\nFull report saved to: {save_path}")
+
+    # ── Optionally export Excel audit report ──────────────────────────────────
+    if export_path:
+        print(f"\nGenerating Excel audit report...")
+        out = export_report(report, export_path)
+        print(f"Excel audit report saved to: {out}")
 
 
 if __name__ == "__main__":
