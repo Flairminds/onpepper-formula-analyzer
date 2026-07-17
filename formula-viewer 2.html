@@ -1076,8 +1076,8 @@
   /* Stat cards row */
   .ov-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px; margin-bottom: 20px
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px
   }
   .stat-card {
     background: var(--surface); border: 1px solid var(--border);
@@ -1293,6 +1293,32 @@
   .cdrop-no-match { padding: 10px 12px; font-size: 12px; color: var(--text-muted) }
   .cdrop-mark { background: rgba(201,121,36,.3); border-radius: 2px; font-style: normal }
 
+  #cv-breadcrumb, #sv-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; background: var(--surface-2);
+    border-bottom: 1px solid var(--border); flex-shrink: 0
+  }
+  .cv-back-btn {
+    display: flex; align-items: center; gap: 4px;
+    border: none; background: none; cursor: pointer;
+    color: var(--accent); font-size: 12.5px; font-weight: 600;
+    font-family: var(--sans); padding: 2px 0
+  }
+  .cv-back-btn:hover { text-decoration: underline }
+  .cv-bc-sep { color: var(--text-muted); font-size: 14px }
+  .cv-bc-name { font-size: 13px; font-weight: 600; color: var(--text) }
+  .cv-bc-letter {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px;
+    background: rgba(43,130,204,.1); color: var(--c-refshift);
+    border: 1px solid rgba(43,130,204,.2)
+  }
+  .cv-col-row { cursor: pointer }
+  .cv-col-row:hover td { background: var(--surface-2) }
+  .cv-col-cnt { font-variant-numeric: tabular-nums; color: var(--text-muted); text-align: right; padding-right: 20px !important }
+  .cv-col-arrow { color: var(--text-muted); font-size: 13px; text-align: right; padding-right: 16px !important }
+  .cv-col-row:hover .cv-col-arrow { color: var(--accent) }
+
   .cv-body { flex: 1; overflow-y: auto; min-height: 0 }
 
   /* ── Change type tabs ────────────────────────────────── */
@@ -1301,6 +1327,24 @@
     background: var(--surface); border-bottom: 2px solid var(--border);
     padding: 0 14px; flex-shrink: 0
   }
+  .ct-home-btn {
+    display: flex; align-items: center; gap: 5px;
+    border: none; background: none; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    color: var(--text-muted); padding: 0 12px 0 0;
+    margin-right: 6px; border-right: 1px solid var(--border);
+    transition: color .12s; white-space: nowrap
+  }
+  .ct-home-btn:hover { color: var(--accent) }
+  .sv-home-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: none; background: none; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    color: var(--text-muted); padding: 8px 14px;
+    border-bottom: 1px solid var(--border); width: 100%;
+    transition: color .12s; flex-shrink: 0
+  }
+  .sv-home-btn:hover { color: var(--accent); background: var(--surface-2) }
   .ct-tab {
     display: flex; align-items: center; gap: 8px;
     padding: 9px 16px; cursor: pointer; border: none;
@@ -1690,10 +1734,10 @@
         <div class="sheet-bar-right" id="workbook-totals"></div>
       </div>
 
-      <div class="stats-strip" id="stats-strip"></div>
+      <div class="stats-strip" id="stats-strip" hidden></div>
 
       <!-- Dashboard navigation tabs -->
-      <div class="dash-nav" id="dash-nav"></div>
+      <div class="dash-nav" id="dash-nav" hidden></div>
 
       <!-- OVERVIEW VIEW (Priority 0: Dashboard) -->
       <div id="overview-view" hidden></div>
@@ -1719,16 +1763,19 @@
             <input id="cv-search" type="text" placeholder="Search by cell, column or formula…" autocomplete="off" spellcheck="false">
           </div>
         </div>
+        <div id="cv-breadcrumb" hidden></div>
         <div class="cv-body" id="cv-body"></div>
       </div>
 
       <!-- STRUCTURAL VIEW (Priority 2: Column Shifts + Ref Shifts) -->
       <div id="structural-view" hidden>
+        <div id="sv-home-bar"></div>
         <div class="sv-insert-zone" id="sv-insert-zone"></div>
         <div class="sv-shift-zone" id="sv-shift-zone"></div>
         <div class="sv-refshift-section" id="sv-refshift-section">
           <div class="sv-sec-hdr" id="sv-sec-hdr"></div>
-          <div class="cv-filter-bar" style="border-top:none;padding:4px 10px">
+          <div id="sv-breadcrumb" hidden></div>
+          <div class="cv-filter-bar" style="border-top:none;padding:4px 10px" id="sv-filter-bar">
             <div class="cv-filter-left">
               <span class="flabel">Column</span>
               <div class="cdrop" id="sv-col-cdrop">
@@ -1741,23 +1788,7 @@
               </div>
             </div>
           </div>
-          <div class="twrap" id="sv-twrap">
-            <table>
-              <thead>
-                <tr>
-                  <th class="tc-sno">#</th>
-                  <th style="min-width:170px">Business Column</th>
-                  <th style="width:76px">Cell</th>
-                  <th style="width:110px">Type</th>
-                  <th style="min-width:160px">Reason</th>
-                  <th>Old Formula</th>
-                  <th>New Formula</th>
-                  <th style="width:110px">Details</th>
-                </tr>
-              </thead>
-              <tbody id="sv-tbody"></tbody>
-            </table>
-          </div>
+          <div class="twrap" id="sv-twrap"></div>
           <div class="pgbar" id="sv-pgbar"></div>
         </div>
       </div>
@@ -2050,12 +2081,6 @@
       { label:'Ref Shifts',    hint:'Cell reference moved (same logic)', val:cntRefshift, cls:'sc-refshift', page:'structural' },
       { label:'Unchanged',     hint:'Identical formulas',             val:cntUnch,     cls:'sc-unch',     page:null },
     ];
-    const statsHtml = `<div class="ov-stats">${cards.map(c =>
-      `<div class="stat-card ${c.cls}${c.page?' sc-clickable':''}" ${c.page?`onclick="dashMode='${c.page}';renderApp()"`:''}  title="${c.hint}">
-        <div class="sc-val">${c.val.toLocaleString()}</div>
-        <div class="sc-label">${c.label}</div>
-        ${c.page ? `<div class="sc-hint">Click to explore →</div>` : ''}
-      </div>`).join('')}</div>`;
 
     // Columns added card
     let leftCards = '';
@@ -2159,7 +2184,7 @@
     }).join('');
     const summaryCard = `<div class="ov-card">
       <div class="ov-card-hdr">
-        <span class="ov-card-title ov-ct-neutral">Change Breakdown</span>
+        <span class="ov-card-title ov-ct-neutral">Formula Change Summary</span>
         <span class="ov-card-sub">${total.toLocaleString()} total cells analyzed</span>
       </div>
       <div class="ov-breakdown">${bkRows}</div>
@@ -2199,10 +2224,9 @@
           <div class="ov-page-title">Overview</div>
           <div class="ov-page-sub">Formula comparison summary for this sheet</div>
         </div>
-        ${statsHtml}
         <div class="ov-grid">
-          <div class="ov-left">${leftCards}</div>
-          <div class="ov-right">${summaryCard}${shiftCard}</div>
+          <div class="ov-left">${leftCards}${shiftCard}</div>
+          <div class="ov-right">${summaryCard}</div>
         </div>
       </div>`;
   }
@@ -2244,82 +2268,158 @@
     const allRows = rowCache[sheet] || [];
     const baseRows = col ? allRows.filter(r => r.col === col) : allRows;
 
-    // Tab definitions with counts
     const TABS = [
       { kind: 'semantic', label: 'Logic Changed', cls: 'ct-semantic' },
       { kind: 'added',    label: 'Added',          cls: 'ct-added'    },
       { kind: 'removed',  label: 'Removed',        cls: 'ct-removed'  },
     ].map(t => ({ ...t, count: baseRows.filter(r => r.kind === t.kind).length }));
 
-    // If current chgType has 0 rows, fall back to first non-empty tab
     if (!baseRows.some(r => r.kind === chgType)) {
       const first = TABS.find(t => t.count > 0);
       if (first) chgType = first.kind;
     }
 
-    // Render type tabs
     const tabBar = document.getElementById('chg-type-bar');
-    tabBar.innerHTML = TABS.map(t =>
-      t.count > 0
-        ? `<button class="ct-tab ${t.cls}${chgType===t.kind?' ct-active':''}"
-             onclick="chgType='${t.kind}';renderChangesView()">
-             ${t.label} <span class="ct-badge">${t.count.toLocaleString()}</span>
-           </button>`
-        : `<button class="ct-tab ct-tab-empty" disabled>${t.label} <span class="ct-badge">0</span></button>`
-    ).join('');
+    tabBar.innerHTML =
+      `<button class="ct-home-btn" onclick="dashMode='overview';col=null;renderApp()">&#8592; Overview</button>` +
+      TABS.map(t =>
+        t.count > 0
+          ? `<button class="ct-tab ${t.cls}${chgType===t.kind?' ct-active':''}"
+               onclick="chgType='${t.kind}';renderChangesView()">
+               ${t.label} <span class="ct-badge">${t.count.toLocaleString()}</span>
+             </button>`
+          : `<button class="ct-tab ct-tab-empty" disabled>${t.label} <span class="ct-badge">0</span></button>`
+      ).join('');
 
-    // Render only the active tab's rows
-    const tabRows = baseRows.filter(r => r.kind === chgType);
-    const body = document.getElementById('cv-body');
+    const body       = document.getElementById('cv-body');
+    const breadcrumb = document.getElementById('cv-breadcrumb');
+    const cdrop      = document.getElementById('col-cdrop');
+    const cvSrch     = document.getElementById('cv-search');
 
-    if (!tabRows.length) {
-      body.innerHTML = '<p style="padding:32px;text-align:center;color:var(--text-muted)">No rows match.</p>';
-    } else {
+    // ── COLUMN-LEVEL VIEW (no column selected) ──────────────────
+    if (!col) {
+      if (breadcrumb) breadcrumb.hidden = true;
+      if (cdrop) cdrop.style.display = 'none';
+      if (cvSrch) cvSrch.placeholder = 'Search columns…';
+
+      const colCounts = {};
+      for (const r of allRows) if (r.kind === chgType) colCounts[r.col] = (colCounts[r.col] || 0) + 1;
+      const entries = Object.entries(colCounts).sort((a, b) => b[1] - a[1]);
+
+      if (!entries.length) {
+        body.innerHTML = '<p style="padding:32px;text-align:center;color:var(--text-muted)">No rows match.</p>';
+        return;
+      }
+
       body.innerHTML = `<table>
         <thead><tr>
           <th class="tc-sno">#</th>
-          <th style="min-width:170px">Business Column</th>
-          <th style="width:76px">Cell</th>
-          <th style="width:104px">Type</th>
-          <th style="min-width:160px">Reason</th>
-          <th>Old Formula</th>
-          <th>New Formula</th>
-          <th style="width:110px">Details</th>
+          <th>Business Column</th>
+          <th style="width:96px">Excel Column</th>
+          <th style="width:110px;text-align:right;padding-right:20px">Cells</th>
+          <th style="width:40px"></th>
         </tr></thead>
-        <tbody id="cv-tbody"></tbody>
+        <tbody id="cv-col-tbody"></tbody>
       </table>`;
 
-      function applySearch() {
-        const cvQ = (document.getElementById('cv-search')?.value || '').toLowerCase().trim();
-        const filtered = cvQ ? tabRows.filter(r => {
-          const nm = (colName(r.col, sheet) || r.col).toLowerCase();
-          return nm.includes(cvQ)
-            || r.cell.toLowerCase().includes(cvQ)
-            || (r.oldF || r.formula || '').toLowerCase().includes(cvQ)
-            || (r.newF || '').toLowerCase().includes(cvQ)
-            || (r.reason || '').toLowerCase().includes(cvQ);
-        }) : tabRows;
+      function applyColSearch() {
+        const q = (cvSrch?.value || '').toLowerCase().trim();
+        const filtered = q ? entries.filter(([c]) => {
+          const nm = (colName(c, sheet) || c).toLowerCase();
+          return nm.includes(q) || c.toLowerCase().includes(q);
+        }) : entries;
 
-        const tbody = document.getElementById('cv-tbody');
+        const tbody = document.getElementById('cv-col-tbody');
         if (!tbody) return;
         if (!filtered.length) {
-          tbody.innerHTML = `<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted)">No results match.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:var(--text-muted)">No columns match.</td></tr>`;
           return;
         }
-        tbody.innerHTML = filtered.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('');
-        wireDetBtns('cv-tbody', filtered);
+        tbody.innerHTML = filtered.map(([c, cnt], i) => {
+          const nm = colName(c, sheet) || c;
+          return `<tr class="cv-col-row" data-col="${x(c)}">
+            <td class="tc-sno">${i + 1}</td>
+            <td style="font-weight:600">${x(nm)}</td>
+            <td><span class="cell-badge">${x(c)}</span></td>
+            <td class="cv-col-cnt">${cnt.toLocaleString()}</td>
+            <td class="cv-col-arrow">&#8250;</td>
+          </tr>`;
+        }).join('');
+        tbody.querySelectorAll('.cv-col-row').forEach(tr => {
+          tr.onclick = () => { col = tr.dataset.col; renderChangesView(); };
+        });
       }
 
-      applySearch();
-
-      const cvSrch = document.getElementById('cv-search');
+      applyColSearch();
       if (cvSrch) {
-        cvSrch.oninput  = applySearch;
-        cvSrch.onkeydown = e => { if (e.key === 'Escape') { cvSrch.value = ''; applySearch(); } };
+        cvSrch.oninput   = applyColSearch;
+        cvSrch.onkeydown = e => { if (e.key === 'Escape') { cvSrch.value = ''; applyColSearch(); } };
       }
+      return;
     }
 
-    // Column searchable dropdown
+    // ── CELL-LEVEL VIEW (column selected) ──────────────────────
+    if (breadcrumb) {
+      breadcrumb.hidden = false;
+      const nm = colName(col, sheet) || col;
+      breadcrumb.innerHTML =
+        `<button class="cv-back-btn" onclick="col=null;renderChangesView()">&#8592; All columns</button>
+         <span class="cv-bc-sep">&#8250;</span>
+         <span class="cv-bc-name">${x(nm)}</span>
+         <span class="cv-bc-letter">${x(col)}</span>`;
+    }
+    if (cdrop) cdrop.style.display = '';
+    if (cvSrch) cvSrch.placeholder = 'Search by cell, column or formula…';
+
+    const tabRows = baseRows.filter(r => r.kind === chgType);
+
+    if (!tabRows.length) {
+      body.innerHTML = '<p style="padding:32px;text-align:center;color:var(--text-muted)">No rows match.</p>';
+      renderColDropdown('col-chip-search', 'col-cdrop-list', 'col-cdrop-clear', allRows, false);
+      return;
+    }
+
+    body.innerHTML = `<table>
+      <thead><tr>
+        <th class="tc-sno">#</th>
+        <th style="min-width:170px">Business Column</th>
+        <th style="width:76px">Cell</th>
+        <th style="width:104px">Type</th>
+        <th style="min-width:160px">Reason</th>
+        <th>Old Formula</th>
+        <th>New Formula</th>
+        <th style="width:110px">Details</th>
+      </tr></thead>
+      <tbody id="cv-tbody"></tbody>
+    </table>`;
+
+    function applySearch() {
+      const cvQ = (cvSrch?.value || '').toLowerCase().trim();
+      const filtered = cvQ ? tabRows.filter(r => {
+        const nm = (colName(r.col, sheet) || r.col).toLowerCase();
+        return nm.includes(cvQ)
+          || r.cell.toLowerCase().includes(cvQ)
+          || (r.oldF || r.formula || '').toLowerCase().includes(cvQ)
+          || (r.newF || '').toLowerCase().includes(cvQ)
+          || (r.reason || '').toLowerCase().includes(cvQ);
+      }) : tabRows;
+
+      const tbody = document.getElementById('cv-tbody');
+      if (!tbody) return;
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted)">No results match.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = filtered.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('');
+      wireDetBtns('cv-tbody', filtered);
+    }
+
+    applySearch();
+    if (cvSrch) {
+      cvSrch.oninput   = applySearch;
+      cvSrch.onkeydown = e => { if (e.key === 'Escape') { cvSrch.value = ''; applySearch(); } };
+    }
+
     renderColDropdown('col-chip-search', 'col-cdrop-list', 'col-cdrop-clear', allRows, false);
   }
 
@@ -2327,6 +2427,10 @@
     const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
     const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
     const cs = colStructure;
+
+    const svHomeBar = document.getElementById('sv-home-bar');
+    if (svHomeBar) svHomeBar.innerHTML =
+      `<button class="sv-home-btn" onclick="dashMode='overview';col=null;renderApp()">&#8592; Overview</button>`;
 
     // Insert zone — compact single-line bar
     const insEl = document.getElementById('sv-insert-zone');
@@ -2365,23 +2469,117 @@
       shiftEl.hidden = true;
     }
 
-    // Ref shift table
-    const allRows = rowCache[sheet] || [];
-    const refRows = svCol
-      ? allRows.filter(r => r.kind === 'refshift' && r.col === svCol)
-      : allRows.filter(r => r.kind === 'refshift');
+    // Ref shift section
+    const allRows  = rowCache[sheet] || [];
+    const allRefRows = allRows.filter(r => r.kind === 'refshift');
 
-    document.getElementById('sv-sec-hdr').innerHTML =
+    const secHdr     = document.getElementById('sv-sec-hdr');
+    const svBc       = document.getElementById('sv-breadcrumb');
+    const svFilterBar = document.getElementById('sv-filter-bar');
+    const svCdrop    = document.getElementById('sv-col-cdrop');
+    const svTwrap    = document.getElementById('sv-twrap');
+    const svSrchEl   = document.getElementById('sv-col-chip-search');
+
+    secHdr.innerHTML =
       `<span class="sv-sec-label">Reference Shifts</span>
-       <span class="sv-sec-count">${refRows.length.toLocaleString()} cell${refRows.length!==1?'s':''} — formula address changed but logic is identical</span>`;
+       <span class="sv-sec-count">${allRefRows.length.toLocaleString()} cell${allRefRows.length!==1?'s':''} — formula address changed but logic is identical</span>`;
 
-    const tbody = document.getElementById('sv-tbody');
-    tbody.innerHTML = refRows.length
-      ? refRows.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('')
-      : '<tr><td colspan="8" class="empty">No reference shifts found.</td></tr>';
-    wireDetBtns('sv-tbody', refRows);
+    // ── COLUMN-LEVEL VIEW ──────────────────────────────────────
+    if (!svCol) {
+      if (svBc) svBc.hidden = true;
+      if (svCdrop) svCdrop.style.display = 'none';
+      if (svSrchEl) svSrchEl.placeholder = 'Search columns…';
 
-    renderColDropdown('sv-col-chip-search', 'sv-col-cdrop-list', 'sv-col-cdrop-clear', allRows.filter(r=>r.kind==='refshift'), true);
+      const colCounts = {};
+      for (const r of allRefRows) colCounts[r.col] = (colCounts[r.col] || 0) + 1;
+      const entries = Object.entries(colCounts).sort((a, b) => b[1] - a[1]);
+
+      if (!entries.length) {
+        svTwrap.innerHTML = '<p style="padding:32px;text-align:center;color:var(--text-muted)">No reference shifts found.</p>';
+        return;
+      }
+
+      svTwrap.innerHTML = `<table>
+        <thead><tr>
+          <th class="tc-sno">#</th>
+          <th>Business Column</th>
+          <th style="width:96px">Excel Column</th>
+          <th style="width:110px;text-align:right;padding-right:20px">Cells</th>
+          <th style="width:40px"></th>
+        </tr></thead>
+        <tbody id="sv-col-tbody"></tbody>
+      </table>`;
+
+      function applyColSearch() {
+        const q = (svSrchEl?.value || '').toLowerCase().trim();
+        const filtered = q ? entries.filter(([c]) => {
+          const nm = (colName(c, sheet) || c).toLowerCase();
+          return nm.includes(q) || c.toLowerCase().includes(q);
+        }) : entries;
+
+        const tbody = document.getElementById('sv-col-tbody');
+        if (!tbody) return;
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:var(--text-muted)">No columns match.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = filtered.map(([c, cnt], i) => {
+          const nm = colName(c, sheet) || c;
+          return `<tr class="cv-col-row" data-col="${x(c)}">
+            <td class="tc-sno">${i + 1}</td>
+            <td style="font-weight:600">${x(nm)}</td>
+            <td><span class="cell-badge">${x(c)}</span></td>
+            <td class="cv-col-cnt">${cnt.toLocaleString()}</td>
+            <td class="cv-col-arrow">&#8250;</td>
+          </tr>`;
+        }).join('');
+        tbody.querySelectorAll('.cv-col-row').forEach(tr => {
+          tr.onclick = () => { svCol = tr.dataset.col; renderStructuralView(); };
+        });
+      }
+
+      applyColSearch();
+      if (svSrchEl) {
+        svSrchEl.oninput   = applyColSearch;
+        svSrchEl.onkeydown = e => { if (e.key === 'Escape') { svSrchEl.value = ''; applyColSearch(); } };
+      }
+      return;
+    }
+
+    // ── CELL-LEVEL VIEW ────────────────────────────────────────
+    if (svBc) {
+      svBc.hidden = false;
+      const nm = colName(svCol, sheet) || svCol;
+      svBc.innerHTML =
+        `<button class="cv-back-btn" onclick="svCol=null;renderStructuralView()">&#8592; All columns</button>
+         <span class="cv-bc-sep">&#8250;</span>
+         <span class="cv-bc-name">${x(nm)}</span>
+         <span class="cv-bc-letter">${x(svCol)}</span>`;
+    }
+    if (svCdrop) svCdrop.style.display = '';
+    if (svSrchEl) svSrchEl.placeholder = 'Search by cell, column or formula…';
+
+    const refRows = allRefRows.filter(r => r.col === svCol);
+    svTwrap.innerHTML = `<table>
+      <thead><tr>
+        <th class="tc-sno">#</th>
+        <th style="min-width:170px">Business Column</th>
+        <th style="width:76px">Cell</th>
+        <th style="width:110px">Type</th>
+        <th style="min-width:160px">Reason</th>
+        <th>Old Formula</th>
+        <th>New Formula</th>
+        <th style="width:110px">Details</th>
+      </tr></thead>
+      <tbody id="sv-tbody">${
+        refRows.length
+          ? refRows.map((r,i) => rowHtml(r, sheet+'\xA7'+r.cell, i+1)).join('')
+          : '<tr><td colspan="8" class="empty">No reference shifts for this column.</td></tr>'
+      }</tbody>
+    </table>`;
+    if (refRows.length) wireDetBtns('sv-tbody', refRows);
+
+    renderColDropdown('sv-col-chip-search', 'sv-col-cdrop-list', 'sv-col-cdrop-clear', allRefRows, true);
   }
 
   function renderColDropdown(inputId, listId, clearId, rows, isSv) {
@@ -2577,7 +2775,7 @@
       if (t === 'column_shifted' || t === 'column_shifted_and_logic_changed') {
         const m = r.reason.label.match(/\(([A-Z]+→[A-Z]+)\)/);
         const arrow = m ? m[1] : '';
-        bullets.push('<span class="rb-shift">&#8226; Structural Shift' + (arrow ? ': ' + x(arrow) : '') + '</span>');
+        bullets.push('<span class="rb-shift">&#8226; Reference Shift' + (arrow ? ': ' + x(arrow) : '') + '</span>');
         if (colStructure && arrow) {
           const mapNew2 = ((D.column_mapping || {}).new || {})[sheet] || {};
           if (colStructure.addedCols.length === 1) {
