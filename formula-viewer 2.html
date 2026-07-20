@@ -157,24 +157,14 @@
     flex-shrink: 0
   }
 
-  .app-search {
-    background: rgba(255, 255, 255, .07);
-    border: 1px solid rgba(255, 255, 255, .1);
-    border-radius: var(--r);
-    padding: 5px 10px;
-    font-size: 12px;
-    color: #C0D0E4;
-    width: 210px;
-    font-family: var(--sans);
-    outline: none;
+  .hdr-icon-btn {
+    padding: 5px 7px;
   }
-
-  .app-search::placeholder {
-    color: #3A5070
-  }
-
-  .app-search:focus {
-    border-color: var(--accent)
+  .hdr-icon-btn svg { width: 15px; height: 15px }
+  .hdr-icon-btn.active {
+    background: var(--accent-sub);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .theme-btn {
@@ -203,6 +193,164 @@
     display: flex;
     overflow: hidden
   }
+
+  /* ── History side panel — frosted glass "window" ─────────────── */
+  .history-panel {
+    width: 312px;
+    flex-shrink: 0;
+    margin: 12px 0 12px 12px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow:
+      0 24px 60px -24px rgba(0,0,0,.4),
+      inset 0 1px 0 rgba(255,255,255,.35);
+    overflow: hidden;
+    transition: width .3s cubic-bezier(.4,0,.2,1),
+                margin .3s cubic-bezier(.4,0,.2,1),
+                opacity .22s ease,
+                border-width .3s ease;
+  }
+  .history-panel.collapsed {
+    width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    border-width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* window title-bar */
+  .history-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    background: color-mix(in srgb, var(--surface) 45%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .win-dots {
+    display: inline-flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .win-dots i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: block;
+  }
+  .win-dots i:nth-child(1) { background: #ff5f57 }
+  .win-dots i:nth-child(2) { background: #febc2e }
+  .win-dots i:nth-child(3) { background: #28c840 }
+  .history-title {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text);
+  }
+  .history-count {
+    font-size: 10.5px;
+    font-weight: 700;
+    background: var(--accent-sub);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+  .history-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 13px 13px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .history-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+    text-align: left;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    border-radius: 13px;
+    padding: 13px 14px 14px;
+    cursor: pointer;
+    font-family: var(--sans);
+    box-shadow: 0 6px 18px -14px rgba(0,0,0,.5);
+    transition: border-color .2s, transform .2s, box-shadow .25s, background .2s;
+  }
+  .history-item:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 34px -16px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .history-item:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-sub);
+  }
+  .history-item.active {
+    border-color: var(--accent);
+    background: var(--accent-sub);
+  }
+
+  .hi-top {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 11px;
+  }
+  .hi-ver {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--accent);
+    background: var(--accent-sub);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .hi-files {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .hi-file {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    font-size: 11px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .hi-tag {
+    flex-shrink: 0;
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-radius: 999px;
+    padding: 2px 7px;
+    line-height: 1.3;
+    position: relative;
+    top: -1px;
+  }
+  .hi-file.old .hi-tag {
+    color: var(--c-removed);
+    background: color-mix(in srgb, var(--c-removed) 13%, transparent);
+  }
+  .hi-file.new .hi-tag {
+    color: var(--c-added);
+    background: color-mix(in srgb, var(--c-added) 13%, transparent);
+  }
+  .hi-file.old .hi-name { color: var(--text-muted) }
+  .hi-file.new .hi-name { color: var(--text); font-weight: 600 }
 
   /* ── Sheet bar (replaces the old sidebar) ───────────────────── */
   .sheet-bar {
@@ -278,52 +426,115 @@
     min-width: 0
   }
 
-  /* Empty / drop state – sits inside .main, NOT full screen */
+  /* Empty / drop state – centered hero, whole main area is a drop target */
   #empty-state {
+    flex: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding: 10px;
-    /* whole main area is a drop target */
+    justify-content: center;
+    gap: 20px;
+    padding: 36px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ambient floating glows behind the card */
+  #empty-state::before,
+  #empty-state::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #empty-state::before {
+    width: 360px; height: 360px;
+    background: var(--accent-sub);
+    top: -90px; left: 50%;
+    transform: translateX(-280px);
+    animation: floatGlowA 13s ease-in-out infinite;
+  }
+  #empty-state::after {
+    width: 320px; height: 320px;
+    background: color-mix(in srgb, var(--c-refshift) 16%, transparent);
+    bottom: -80px; left: 50%;
+    transform: translateX(190px);
+    animation: floatGlowB 16s ease-in-out infinite;
+  }
+  @keyframes floatGlowA {
+    0%,100% { transform: translateX(-280px) translateY(0) }
+    50%     { transform: translateX(-235px) translateY(34px) }
+  }
+  @keyframes floatGlowB {
+    0%,100% { transform: translateX(190px) translateY(0) }
+    50%     { transform: translateX(150px) translateY(-30px) }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #empty-state::before, #empty-state::after,
+    .drop-hero { animation: none !important }
   }
 
   #empty-state.drag-over {
     background: var(--accent-sub)
   }
-
   #empty-state.drag-over .drop-card {
-    border-color: var(--accent)
+    border-color: var(--accent);
+    border-style: dashed;
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: 0 20px 55px -12px var(--accent-sub);
   }
 
   .drop-card {
+    position: relative;
+    z-index: 1;
     background: var(--surface);
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    max-width: 420px;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 30px 26px;
+    max-width: 440px;
     width: 100%;
     text-align: center;
-    transition: border-color .18s, background .18s;
-    cursor: pointer
+    box-shadow: 0 12px 40px -14px rgba(0,0,0,.22);
+    transition: border-color .2s, box-shadow .25s, transform .25s;
   }
-
   .drop-card:hover {
-    border-color: var(--accent)
+    border-color: var(--accent);
+    box-shadow: 0 20px 52px -14px color-mix(in srgb, var(--accent) 40%, transparent);
+    transform: translateY(-3px);
   }
 
-  .drop-icon-sm {
-    width: 32px;
-    height: 32px;
-    color: var(--accent);
-    margin: 0 auto 10px;
-    display: block
+  /* hero badge icon */
+  .drop-hero {
+    width: 58px; height: 58px;
+    margin: 0 auto 14px;
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ffb877));
+    color: #fff;
+    box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+    animation: heroFloat 4.5s ease-in-out infinite;
+  }
+  .drop-hero svg { width: 30px; height: 30px }
+  @keyframes heroFloat {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-6px) }
   }
 
   .drop-title {
-    font-size: 14px;
-    font-weight: 650;
-    margin-bottom: 4px
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin-bottom: 5px
+  }
+
+  .drop-subtitle {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 0 auto 20px;
+    max-width: 320px;
+    line-height: 1.55
   }
 
   .drop-hint {
@@ -341,50 +552,125 @@
   }
 
   .drop-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     background: var(--accent);
     color: #fff;
-    padding: 6px 18px;
-    border-radius: var(--r);
-    font-size: 12.5px;
-    font-weight: 550;
+    padding: 10px 22px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     border: none;
     font-family: var(--sans);
-    transition: opacity .15s
+    box-shadow: 0 8px 18px -7px color-mix(in srgb, var(--accent) 75%, transparent);
+    transition: transform .15s, box-shadow .2s, opacity .15s
   }
-
+  .drop-btn svg { width: 15px; height: 15px }
   .drop-btn:hover {
-    opacity: .85
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -7px color-mix(in srgb, var(--accent) 75%, transparent)
   }
+  .drop-btn:active { transform: translateY(0) }
 
   .drop-or {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0 16px !important
+  }
+  .drop-or::before, .drop-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border)
+  }
+
+  /* custom-styled native file inputs */
+  .file-field { text-align: left }
+  .file-field-label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-muted);
+    margin-bottom: 5px
+  }
+  .file-input {
+    width: 100%;
+    font-family: var(--sans);
     font-size: 11.5px;
-    color: var(--text-muted)
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 7px 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s
+  }
+  .file-input:hover { border-color: var(--accent) }
+  .file-input::file-selector-button {
+    font-family: var(--sans);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 11px;
+    margin-right: 10px;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 550;
+    transition: border-color .15s, color .15s, background .15s
+  }
+  .file-input::file-selector-button:hover {
+    border-color: var(--accent);
+    color: var(--accent)
   }
 
   #load-status {
     font-size: 11.5px;
     color: var(--text-muted);
-    margin-top: 10px;
+    margin-top: 12px;
     min-height: 16px
   }
 
   .drop-tip {
-    margin-top: 10px;
-    font-size: 10px;
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
     color: var(--text-muted);
     line-height: 1;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    text-align: left;
-    max-width: 420px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 560px;
     width: 100%
   }
-
+  .drop-tip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 13px;
+    transition: border-color .15s, transform .15s
+  }
+  .drop-tip span:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px)
+  }
   .drop-tip span::before {
-    content: '→ ';
-    color: var(--accent)
+    color: var(--accent);
+    font-weight: 700
   }
 
   /* ── Data view (hidden until file loaded) ───────────────────── */
@@ -1652,19 +1938,14 @@
 
 <!-- ─── Header ───────────────────────────────────────────────── -->
 <header class="app-bar">
+  <button class="hdr-upload hdr-icon-btn" id="history-toggle" title="Show / hide history" aria-label="Toggle history" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2"/>
+      <line x1="9" y1="4" x2="9" y2="20"/>
+    </svg>
+  </button>
   <span class="app-logo">Formula Diff</span>
   <span class="app-file" id="hdr-file">No file loaded</span>
-  <select class="hdr-upload" id="history-select" title="Load a past comparison report" hidden></select>
-  <label class="hdr-upload" title="Load a formula_comparison.json file">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-      stroke-linejoin="round">
-      <path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" />
-      <polyline points="5 6 8 3 11 6" />
-      <line x1="8" y1="3" x2="8" y2="10" />
-    </svg>
-    Open JSON
-    <input type="file" id="file-input" accept=".json" style="display:none">
-  </label>
   <button class="hdr-upload hdr-export-btn" id="export-btn" title="Export comparison as Excel audit report" hidden>
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
       stroke-linejoin="round">
@@ -1674,45 +1955,60 @@
     </svg>
     Export Report
   </button>
-  <input class="app-search" id="search" type="search" placeholder="Search cells or formulas…" disabled>
   <button class="theme-btn" id="theme-btn" title="Toggle theme">☀</button>
 </header>
 
 <!-- ─── Body ─────────────────────────────────────────────────── -->
 <div class="app-body">
+
+  <!-- History side panel -->
+  <aside class="history-panel" id="history-panel" hidden>
+    <div class="history-head">
+      <!-- <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span> -->
+      <span class="history-title">History</span>
+      <span class="history-count" id="history-count"></span>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </aside>
+
   <div class="main" id="main-drop">
 
     <!-- Empty / upload state -->
     <div id="empty-state">
       <div class="drop-card" id="drop-card">
-        <!-- <svg class="drop-icon-sm" viewBox="0 0 32 32" fill="none" stroke="currentColor"
-             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="20" height="28" rx="2"/>
-          <path d="M14 2v9h10"/>
-          <polyline points="11 22 16 27 21 22"/>
-          <line x1="16" y1="17" x2="16" y2="27"/>
-        </svg> -->
+        <div class="drop-hero">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="18" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="18" rx="1.5"/>
+            <path d="M10 12h4"/>
+            <path d="M12.4 10.4 14 12l-1.6 1.6"/>
+          </svg>
+        </div>
         <div class="drop-title">Load a comparison report</div>
-        <!-- <div class="drop-hint">Drag &amp; drop <strong>formula_comparison.json</strong> anywhere,<br>or use the button above to choose a file</div> -->
+        <div class="drop-subtitle">Drag &amp; drop a <strong>.json</strong> report here, or pick one below to explore the diff.</div>
         <div class="drop-row">
           <label class="drop-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
             Open File <input type="file" id="file-input2" accept=".json" style="display:none">
           </label>
         </div>
         <div id="load-status"></div>
 
-        <div class="drop-or" style="margin:16px 0 10px">— or run a new comparison —</div>
-        <div style="display:flex;flex-direction:column;gap:9px;align-items:stretch;text-align:left">
-          <label style="font-size:11.5px;color:var(--text-muted)">
-            Old workbook
-            <input type="file" id="old-xlsx-input" accept=".xlsx" style="display:block;margin-top:3px;font-size:11.5px;width:100%">
-          </label>
-          <label style="font-size:11.5px;color:var(--text-muted)">
-            New workbook
-            <input type="file" id="new-xlsx-input" accept=".xlsx" style="display:block;margin-top:3px;font-size:11.5px;width:100%">
-          </label>
-          <button class="drop-btn" id="run-compare-btn" type="button">Compare &amp; Save Report</button>
-          <div id="compare-status" style="font-size:11.5px;color:var(--text-muted);min-height:16px"></div>
+        <div class="drop-or">or run a new comparison</div>
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
+          <div class="file-field">
+            <span class="file-field-label">Old workbook</span>
+            <input type="file" id="old-xlsx-input" accept=".xlsx" class="file-input">
+          </div>
+          <div class="file-field">
+            <span class="file-field-label">New workbook</span>
+            <input type="file" id="new-xlsx-input" accept=".xlsx" class="file-input">
+          </div>
+          <button class="drop-btn" id="run-compare-btn" type="button" style="width:100%;margin-top:2px">Compare &amp; Save Report</button>
+          <div id="compare-status" style="font-size:11.5px;color:var(--text-muted);min-height:16px;text-align:center"></div>
         </div>
       </div>
       <div class="drop-tip">
@@ -1862,10 +2158,6 @@
     if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);
   });
 
-  // Header file input
-  document.getElementById('file-input').addEventListener('change', e => {
-    if (e.target.files[0]) load(e.target.files[0]);
-  });
   // Card file input
   document.getElementById('file-input2').addEventListener('change', e => {
     if (e.target.files[0]) load(e.target.files[0]);
@@ -1896,10 +2188,10 @@
       ? `${strip(D.old_file)}  →  ${strip(D.new_file)}`
       : fname;
     document.getElementById('hdr-file').textContent = fileLabel;
-    document.getElementById('search').disabled = false;
     document.getElementById('empty-state').hidden = true;
     document.getElementById('data-view').hidden = false;
     document.getElementById('export-btn').hidden = false;
+    setHistoryCollapsed(true); // collapse history once a report is open
 
     for (const s of Object.keys(D.sheet_diffs)) rowCache[s] = buildRows(s);
     sheet = Object.keys(D.sheet_diffs)[0];
@@ -2094,17 +2386,18 @@
           <td style="font-weight:600">${x(nm)}</td>
           <td><span class="ov-col-badge">${x(c)}</span></td>
           <td>${affected.toLocaleString()} formulas</td>
-          <td><span class="ov-impact-chip ${chipCls}">${impact}</span></td>
+          <!-- <td><span class="ov-impact-chip ${chipCls}">${impact}</span></td> -->
         </tr>`;
       }).join('');
       leftCards += `<div class="ov-card">
         <div class="ov-card-hdr">
-          <span class="ov-card-title ov-ct-added">&#43; Columns Added (${cs.addedCols.length})</span>
+          <span class="ov-card-title ov-ct-added">${cs.addedCols.length} Column(s) Added</span>
           <span class="ov-card-sub">Newly inserted in the new workbook — caused downstream shifts</span>
         </div>
         <table class="ov-table">
           <thead><tr>
-            <th>Business Column</th><th>Excel Letter</th><th>Formulas Affected</th><th>Impact</th>
+            <th>Business Column</th><th>Excel Column Ref</th><th>Formula Affected</th>
+            <!-- <th>Impact</th> -->
           </tr></thead>
           <tbody>${colRows}</tbody>
         </table>
@@ -2127,7 +2420,7 @@
           <span class="ov-card-sub">Present in old workbook, absent in new</span>
         </div>
         <table class="ov-table">
-          <thead><tr><th>Business Column</th><th>Excel Letter</th><th>Status</th></tr></thead>
+          <thead><tr><th>Business Column</th><th>Excel Column Ref</th><th>Status</th></tr></thead>
           <tbody>${rows2}</tbody>
         </table>
       </div>`;
@@ -2153,11 +2446,11 @@
         : '';
       leftCards += `<div class="ov-card" style="margin-top:0">
         <div class="ov-card-hdr">
-          <span class="ov-card-title ov-ct-logic">&#9679; Logic Changed Columns (${semanticCols.length})</span>
+          <span class="ov-card-title ov-ct-logic">${semanticCols.length} Column(s) has Logic Changed</span>
           <button class="ov-card-action" onclick="dashMode='changes';chgType='semantic';col=null;renderApp()">View all &#8594;</button>
         </div>
         <table class="ov-table">
-          <thead><tr><th>Business Column</th><th>Excel Letter</th><th>Changes</th></tr></thead>
+          <thead><tr><th>Business Column</th><th>Excel Column Ref</th><th>Cells Affected</th></tr></thead>
           <tbody>${lcRows}</tbody>
         </table>
         ${moreLink}
@@ -2184,7 +2477,7 @@
     }).join('');
     const summaryCard = `<div class="ov-card">
       <div class="ov-card-hdr">
-        <span class="ov-card-title ov-ct-neutral">Formula Change Summary</span>
+        <span class="ov-card-title ov-ct-neutral">Cell Formula changes Summary</span>
         <span class="ov-card-sub">${total.toLocaleString()} total cells analyzed</span>
       </div>
       <div class="ov-breakdown">${bkRows}</div>
@@ -2207,11 +2500,11 @@
         : '';
       shiftCard = `<div class="ov-card">
         <div class="ov-card-hdr">
-          <span class="ov-card-title ov-ct-shifted">&#8644; Columns Shifted (${cs.movedCols.length})</span>
+          <span class="ov-card-title ov-ct-shifted">${cs.movedCols.length} Column(s) Shifted</span>
           <button class="ov-card-action" onclick="dashMode='structural';renderApp()">View all &#8594;</button>
         </div>
         <table class="ov-table">
-          <thead><tr><th>Business Column</th><th>Old &#8594; New Position</th><th>Affected</th></tr></thead>
+          <thead><tr><th>Business Column</th><th>Old &#8594; New Position</th><th>Cells Affected</th></tr></thead>
           <tbody>${shiftRows}</tbody>
         </table>
         ${moreLink}
@@ -3366,36 +3659,67 @@
       : `<span class="pginfo">No results</span>`;
   }
 
-  // ── Search ────────────────────────────────────────────────────
-  document.getElementById('search').addEventListener('input', e => {
-    q = e.target.value.trim().toLowerCase(); open.clear();
-    renderTypeTabs(); renderReasonTabs(); renderTable();
-  });
-
   // ── Backend integration (server.py) ────────────────────────────
   async function loadHistory() {
-    const sel = document.getElementById('history-select');
+    const panel = document.getElementById('history-panel');
+    const listEl = document.getElementById('history-list');
+    const countEl = document.getElementById('history-count');
+    const toggle = document.getElementById('history-toggle');
     try {
       const res = await fetch('/api/reports');
       if (!res.ok) throw new Error();
       const list = await res.json();
-      if (!list.length) { sel.hidden = true; return; }
-      sel.hidden = false;
-      sel.innerHTML = `<option value="">History…</option>` + list.map(r =>
-        `<option value="${r.version}">v${r.version} — ${x(r.old_file || '?')} → ${x(r.new_file || '?')}</option>`
+      if (!list.length) { panel.hidden = true; toggle.hidden = true; return; }
+      panel.hidden = false;
+      toggle.hidden = false;
+      toggle.classList.toggle('active', !panel.classList.contains('collapsed'));
+      countEl.textContent = list.length;
+      listEl.innerHTML = list.map(r =>
+        `<div class="history-item" role="button" tabindex="0" data-version="${x(r.version)}">
+           <div class="hi-top">
+             <span class="hi-ver">v${x(r.version)}</span>
+           </div>
+           <div class="hi-files">
+             <div class="hi-file old"><span class="hi-tag">Old</span><span class="hi-name">${x(r.old_file || '—')}</span></div>
+             <div class="hi-file new"><span class="hi-tag">New</span><span class="hi-name">${x(r.new_file || '—')}</span></div>
+           </div>
+         </div>`
       ).join('');
     } catch {
-      sel.hidden = true; // backend not running (e.g. viewer opened as a plain file) – ignore
+      panel.hidden = true; toggle.hidden = true; // backend not running (e.g. viewer opened as a plain file) – ignore
     }
   }
 
-  document.getElementById('history-select').addEventListener('change', async e => {
-    const v = e.target.value;
-    if (!v) return;
+  // History panel collapse / expand
+  const historyPanel = document.getElementById('history-panel');
+  const historyToggle = document.getElementById('history-toggle');
+  function setHistoryCollapsed(collapsed) {
+    historyPanel.classList.toggle('collapsed', collapsed);
+    historyToggle.classList.toggle('active', !collapsed);
+  }
+  historyToggle.addEventListener('click', () => {
+    setHistoryCollapsed(!historyPanel.classList.contains('collapsed'));
+  });
+
+  async function openHistoryItem(item) {
+    const v = item.dataset.version;
     const res = await fetch(`/api/reports/${v}`);
     if (!res.ok) return;
     D = await res.json();
+    document.querySelectorAll('.history-item.active').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
     init(`comparison_report_${v}.json`);
+  }
+
+  const historyListEl = document.getElementById('history-list');
+  historyListEl.addEventListener('click', e => {
+    const item = e.target.closest('.history-item');
+    if (item) openHistoryItem(item);
+  });
+  historyListEl.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const item = e.target.closest('.history-item');
+    if (item) { e.preventDefault(); openHistoryItem(item); }
   });
 
   document.getElementById('run-compare-btn').addEventListener('click', async () => {
