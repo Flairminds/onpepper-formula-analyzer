@@ -754,6 +754,15 @@
     margin-top: 2px
   }
 
+  .scard-sub {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: inline-block;
+    border-bottom: 1px dotted var(--text-muted);
+    cursor: help;
+  }
+
   /* Filter bar */
   .filter-bar {
     background: var(--surface);
@@ -1452,6 +1461,30 @@
   }
   .ov-lc-row { cursor: pointer }
   .ov-lc-row:hover td { background: rgba(201,121,36,.05) }
+  .ov-add-row { cursor: pointer }
+  .ov-add-row:hover td { background: rgba(26,155,104,.06) }
+  .ov-shift-row { cursor: pointer }
+  .ov-shift-row:hover td { background: rgba(43,130,204,.06) }
+
+  /* Toast — brief top-center notice, e.g. "no formulas to show" */
+  .app-toast {
+    position: fixed; left: 50%; top: 18px; z-index: 999;
+    transform: translateX(-50%) translateY(-10px);
+    max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text);
+    box-shadow: 0 14px 34px -14px rgba(0,0,0,.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto }
   .ov-arrow { color: var(--text-muted); margin: 0 3px; font-size: 11px }
   .ov-impact-chip {
     display: inline-flex; align-items: center; gap: 4px;
@@ -1934,6 +1967,225 @@
 
   tbody tr.col-row { cursor: pointer }
   tbody tr.col-row:hover { background: var(--surface-2) }
+
+  /* ── Column Map — before/after alignment diagram ─────────────── */
+  .cm-card { margin-bottom: 18px; overflow: hidden }
+  .cm-legend {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    padding: 12px 16px 6px;
+  }
+  .cm-lg { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted) }
+  .cm-sw { width: 11px; height: 11px; border-radius: 3px; display: inline-block; flex-shrink: 0 }
+  .cm-sw-added   { background: var(--c-added) }
+  .cm-sw-removed { background: var(--c-removed) }
+  .cm-sw-moved   { background: var(--c-refshift) }
+  .cm-sw-logic   { background: var(--c-semantic) }
+  .cm-sw-ref     { background: var(--c-refshift); opacity: .45 }
+
+  .colmap-wrap { display: flex; align-items: stretch; padding: 2px 8px 8px }
+  .colmap-gutter { position: relative; width: 38px; flex-shrink: 0 }
+  .cm-glabel {
+    position: absolute; left: 0; width: 38px;
+    display: flex; align-items: center;
+    font-size: 10px; font-weight: 700; letter-spacing: .07em; color: var(--text-muted);
+  }
+  .colmap-scroll { flex: 1; overflow-x: auto; overflow-y: hidden }
+  .colmap-canvas { position: relative }
+  .colmap-svg { position: absolute; inset: 0; pointer-events: none; z-index: 0 }
+
+  /* Tile styled like a real Excel column: shaded header strip (col letter)
+     + a body with faint row gridlines, like a mini spreadsheet column. */
+  .cm-tile {
+    position: absolute;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    cursor: pointer; overflow: hidden;
+    box-shadow: 0 2px 6px -3px rgba(0,0,0,.22);
+    transition: transform .15s, box-shadow .18s, border-color .15s;
+    z-index: 1;
+  }
+  .cm-tile:hover { transform: translateY(-2px); box-shadow: 0 9px 20px -8px rgba(0,0,0,.4); border-color: var(--accent); z-index: 3 }
+  .cm-tile.cm-static { cursor: default }
+  .cm-tile-top {
+    position: relative;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    height: 21px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; color: var(--text);
+  }
+  .cm-ref { flex-shrink: 0 }
+  .cm-tag {
+    position: absolute; top: 50%; right: 4px; transform: translateY(-50%);
+    font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
+    border-radius: 999px; padding: 1px 4px; white-space: nowrap;
+  }
+  .cm-tag-added   { background: color-mix(in srgb, var(--c-added) 20%, transparent);   color: var(--c-added) }
+  .cm-tag-removed { background: color-mix(in srgb, var(--c-removed) 20%, transparent); color: var(--c-removed) }
+  .cm-tag-moved   { background: color-mix(in srgb, var(--c-refshift) 20%, transparent);color: var(--c-refshift) }
+  .cm-tile-body {
+    position: relative;
+    flex: 1;
+    padding: 6px 7px 4px;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent, transparent 15px,
+      color-mix(in srgb, var(--border) 55%, transparent) 15px,
+      color-mix(in srgb, var(--border) 55%, transparent) 16px);
+  }
+  .cm-name {
+    font-size: 9.5px; line-height: 1.3; color: var(--text-muted);
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4; -webkit-box-orient: vertical; word-break: break-word;
+  }
+  .cm-badges { position: absolute; left: 7px; bottom: 4px; display: flex; gap: 3px }
+  .cm-b { font-size: 8px; font-weight: 700; border-radius: 999px; padding: 0 4px; line-height: 1.55 }
+  .cm-b-logic { background: color-mix(in srgb, var(--c-semantic) 20%, transparent); color: var(--c-semantic) }
+  .cm-b-ref   { background: color-mix(in srgb, var(--c-refshift) 20%, transparent); color: var(--c-refshift) }
+
+  .cm-added      { border-color: var(--c-added) }
+  .cm-added      .cm-tile-top { background: color-mix(in srgb, var(--c-added) 14%, var(--surface-2)) }
+  .cm-removed    { border-color: var(--c-removed) }
+  .cm-removed    .cm-tile-top { background: color-mix(in srgb, var(--c-removed) 14%, var(--surface-2)) }
+  .cm-moved,
+  .cm-movedfrom  { border-color: var(--c-refshift) }
+  .cm-moved      .cm-tile-top,
+  .cm-movedfrom  .cm-tile-top { background: color-mix(in srgb, var(--c-refshift) 14%, var(--surface-2)) }
+  .cm-logic      { border-color: var(--c-semantic) }
+  .cm-logic      .cm-tile-top { background: color-mix(in srgb, var(--c-semantic) 14%, var(--surface-2)) }
+  .cm-refonly    { border-color: color-mix(in srgb, var(--c-refshift) 55%, var(--border)) }
+
+  .cm-note { padding: 2px 16px 12px; font-size: 10.5px; color: var(--text-muted) }
+  .cm-inline-link { color: var(--accent); cursor: pointer; font-weight: 600; white-space: nowrap }
+  .cm-inline-link:hover { text-decoration: underline }
+
+  /* ellipsis chips for collapsed runs — shifted vs unchanged are visually distinct */
+  .cm-ellipsis {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, transform .15s, background .15s;
+    z-index: 1;
+  }
+  .cm-ellipsis:hover { transform: translateY(-2px) }
+  .cm-ell-dots { font-size: 15px; line-height: .7 }
+  .cm-ell-cnt { font-size: 9px; font-weight: 700; font-variant-numeric: tabular-nums }
+  .cm-ell-lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em }
+
+  .cm-ellipsis-shifted {
+    border: 1.5px dashed color-mix(in srgb, var(--c-refshift) 55%, var(--border));
+    background: color-mix(in srgb, var(--c-refshift) 7%, var(--surface-2));
+    color: var(--c-refshift);
+  }
+  .cm-ellipsis-shifted:hover { border-color: var(--c-refshift); background: color-mix(in srgb, var(--c-refshift) 14%, var(--surface-2)) }
+
+  .cm-ellipsis-unchanged {
+    border: 1.5px dashed var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+  .cm-ellipsis-unchanged:hover { border-color: var(--accent); color: var(--accent) }
+
+  /* view-all / priority toggle button */
+  .cm-toggle {
+    margin-left: auto;
+    background: var(--accent-sub);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: 999px;
+    padding: 4px 13px;
+    font-size: 11px; font-weight: 600;
+    font-family: var(--sans);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, border-color .15s;
+  }
+  .cm-toggle:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent) }
+
+  /* ── Column Focus — "why did THIS column change, what does it affect" ── */
+  #cv-colfocus { padding: 12px 16px 4px }
+  .cf-card {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: 0 6px 18px -12px rgba(0,0,0,.3);
+  }
+  .cf-zone {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cf-zone + .cf-zone { border-left: 1px dashed var(--border) }
+  .cf-zone-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .cf-zone-title .cf-arrow-ico { color: var(--border); font-size: 12px }
+  .cf-empty { font-size: 11.5px; color: var(--text-muted); font-style: italic }
+
+  .cf-chips { display: flex; flex-wrap: wrap; gap: 6px }
+  .cf-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 11px;
+    background: var(--surface-2);
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .cf-chip:hover { border-color: var(--accent); transform: translateY(-1px) }
+  .cf-chip .cf-chip-letter { font-weight: 700; font-size: 10.5px }
+  .cf-chip .cf-chip-name { color: var(--text-muted); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  .cf-chip .cf-chip-cnt { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 10px; border-radius: 999px; padding: 1px 6px }
+  .cf-chip-added   { border-color: color-mix(in srgb, var(--c-added) 55%, var(--border)) }
+  .cf-chip-added   .cf-chip-letter { color: var(--c-added) }
+  .cf-chip-removed { border-color: color-mix(in srgb, var(--c-removed) 55%, var(--border)) }
+  .cf-chip-removed .cf-chip-letter { color: var(--c-removed) }
+  .cf-chip-impact  .cf-chip-letter { color: var(--accent) }
+  .cf-chip-impact  .cf-chip-cnt { background: var(--accent-sub); color: var(--accent) }
+  .cf-more-note { font-size: 10.5px; color: var(--text-muted) }
+
+  .cf-note { font-size: 11px; color: var(--text-muted); line-height: 1.45 }
+  .cf-note b { color: var(--text); font-weight: 600 }
+
+  /* center zone: this column's own old→new identity */
+  .cf-self-wrap { display: flex; align-items: center; justify-content: center; gap: 10px }
+  .cf-self-tile {
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    overflow: hidden;
+    width: 84px;
+    flex-shrink: 0;
+  }
+  .cf-self-tile-hdr {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; text-align: center; padding: 3px 0;
+  }
+  .cf-self-tile-body { padding: 5px 6px; font-size: 9px; color: var(--text-muted); line-height: 1.25; min-height: 28px }
+  .cf-self-added   .cf-self-tile-hdr { background: color-mix(in srgb, var(--c-added) 16%, var(--surface-2)); color: var(--c-added) }
+  .cf-self-removed .cf-self-tile-hdr { background: color-mix(in srgb, var(--c-removed) 16%, var(--surface-2)); color: var(--c-removed) }
+  .cf-self-moved    .cf-self-tile-hdr { background: color-mix(in srgb, var(--c-refshift) 16%, var(--surface-2)); color: var(--c-refshift) }
+  .cf-self-arrow { color: var(--c-refshift); font-size: 15px; flex-shrink: 0 }
+  .cf-self-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 8px }
+  .cf-self-badge { font-size: 9.5px; font-weight: 700; border-radius: 999px; padding: 2px 7px }
+  .cf-sb-added    { background: color-mix(in srgb, var(--c-added) 16%, transparent);    color: var(--c-added) }
+  .cf-sb-removed  { background: color-mix(in srgb, var(--c-removed) 16%, transparent);  color: var(--c-removed) }
+  .cf-sb-semantic { background: color-mix(in srgb, var(--c-semantic) 16%, transparent); color: var(--c-semantic) }
+  .cf-sb-refshift { background: color-mix(in srgb, var(--c-refshift) 16%, transparent); color: var(--c-refshift) }
 </style>
 
 <!-- ─── Header ───────────────────────────────────────────────── -->
@@ -2060,6 +2312,7 @@
           </div>
         </div>
         <div id="cv-breadcrumb" hidden></div>
+        <div id="cv-colfocus" hidden></div>
         <div class="cv-body" id="cv-body"></div>
       </div>
 
@@ -2113,6 +2366,7 @@
   let open = new Set();
   let rowCache = {};
   let colStructure = null;
+  let cmShowAll = false; // Column Map: collapse pure shifts into ellipsis unless "view all"
   let detailRow = null;
   let dashMode = 'changes'; // 'changes' | 'structural'
   let sectionCollapsed = {};
@@ -2246,6 +2500,16 @@
 
   function reasonKey(r) { return r.reason ? r.reason.type : 'none'; }
 
+  // Split an Added/Removed cell set into "moved there purely because a column
+  // shifted" vs "actually new/gone" — this is the distinction users miss when
+  // they read a raw Added/Removed count as real content change.
+  function shiftSplit(s, kind) {
+    const rows = (rowCache[s] || []).filter(r => r.kind === kind);
+    let shifted = 0;
+    for (const r of rows) if (r.reason && r.reason.type === 'column_shifted') shifted++;
+    return { total: rows.length, shifted, other: rows.length - shifted };
+  }
+
   function filteredRows() {
     return (rowCache[sheet] || []).filter(r => {
       if (type !== 'all' && r.kind !== type) return false;
@@ -2268,7 +2532,7 @@
       return `<option value="${x(s)}"${s === sheet ? ' selected' : ''}>${x(s)}  (${total.toLocaleString()})</option>`;
     }).join('');
     el.onchange = e => {
-      sheet = e.target.value; col = null; svCol = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); colFilter = ''; colStructure = null; sectionCollapsed = {}; dashMode = 'overview'; chgType = 'semantic';
+      sheet = e.target.value; col = null; svCol = null; type = 'all'; reason = 'all'; viewMode = 'column'; open.clear(); colFilter = ''; colStructure = null; cmShowAll = false; sectionCollapsed = {}; dashMode = 'overview'; chgType = 'semantic';
       const ccs = document.getElementById('col-chip-search'); if (ccs) { ccs.value = ''; delete ccs.dataset.ddWired; const cl = document.getElementById('col-cdrop-list'); if (cl) cl.hidden = true; }
       const scs = document.getElementById('sv-col-chip-search'); if (scs) { scs.value = ''; delete scs.dataset.ddWired; const sl = document.getElementById('sv-col-cdrop-list'); if (sl) sl.hidden = true; }
       renderApp();
@@ -2276,14 +2540,18 @@
   }
 
   function renderGlobal() {
-    let tA = 0, tR = 0, tS = 0, tF = 0;
+    let tA = 0, tR = 0, tS = 0, tF = 0, tAshift = 0, tRshift = 0;
     for (const s of Object.keys(D.sheet_diffs)) {
       const st = stats(s); tA += st.added; tR += st.removed; tS += st.semantic; tF += st.refshift;
+      tAshift += shiftSplit(s, 'added').shifted;
+      tRshift += shiftSplit(s, 'removed').shifted;
     }
     const sA = (D.sheets_added || []).length, sR = (D.sheets_removed || []).length;
+    const addTip = tAshift ? ` title="${x(`${tAshift.toLocaleString()} of these only moved here because a column shifted — not newly added. ${(tA - tAshift).toLocaleString()} are newly added.`)}"` : '';
+    const remTip = tRshift ? ` title="${x(`${tRshift.toLocaleString()} of these only moved away because a column shifted — not truly removed. ${(tR - tRshift).toLocaleString()} are truly removed.`)}"` : '';
     document.getElementById('workbook-totals').innerHTML =
-      `<span class="wb-stat wa">Workbook added <b>${tA.toLocaleString()}</b></span>
-       <span class="wb-stat wr">removed <b>${tR.toLocaleString()}</b></span>
+      `<span class="wb-stat wa"${addTip}>Workbook added <b>${tA.toLocaleString()}</b></span>
+       <span class="wb-stat wr"${remTip}>removed <b>${tR.toLocaleString()}</b></span>
        <span class="wb-stat ws">logic changed <b>${tS.toLocaleString()}</b></span>
        <span class="wb-stat wf">ref shift <b>${tF.toLocaleString()}</b></span>
        ${sA ? `<span class="wb-stat wa">sheets added <b>${sA}</b></span>` : ''}
@@ -2351,6 +2619,378 @@
     document.getElementById('dnt-structural').onclick = () => { dashMode = 'structural'; col = null; renderApp(); };
   }
 
+  // ── Column Map — before/after alignment diagram ────────────────
+  function columnMapHtml() {
+    const cm = D.column_mapping;
+    if (!cm) return '';
+    const mapOld = (cm.old || {})[sheet] || {};
+    const mapNew = (cm.new || {})[sheet] || {};
+    if (!Object.keys(mapOld).length && !Object.keys(mapNew).length) return '';
+    const cs = colStructure || { addedCols: [], removedCols: [], movedCols: [] };
+    const rows = rowCache[sheet] || [];
+
+    // per-column cell-level change counts
+    const cnt = {};
+    const bump = (c, k) => { (cnt[c] || (cnt[c] = { semantic:0, refshift:0, added:0, removed:0 }))[k]++; };
+    for (const r of rows) {
+      if      (r.kind === 'semantic') bump(r.col, 'semantic');
+      else if (r.kind === 'refshift') bump(r.col, 'refshift');
+      else if (r.kind === 'added')    bump(r.col, 'added');
+      else if (r.kind === 'removed')  bump(r.col, 'removed');
+    }
+    const changeVol = c => { const v = cnt[c]; return v ? v.semantic + v.refshift + v.added + v.removed : 0; };
+
+    const addedSet   = new Set(cs.addedCols);
+    const removedSet = new Set(cs.removedCols);
+    const movedTo    = new Map(cs.movedCols.map(m => [m.to, m]));
+    const movedFrom  = new Map(cs.movedCols.map(m => [m.from, m]));
+
+    const meaningful = n => n && !/^unnamed\d*$/i.test(String(n).trim());
+    const colIdx = s => { let n = 0; for (const ch of String(s)) n = n * 26 + (ch.charCodeAt(0) - 64); return n; };
+
+    // A column shows if it has a real business name (context) OR it actually changed.
+    // Unnamed columns still appear when they carry changes, using their letter as label.
+    const mk = (c, n) => ({ letter: c, name: meaningful(n) ? n : c, matchName: meaningful(n) ? n : null, idx: colIdx(c) });
+    let oldCols = Object.entries(mapOld)
+      .filter(([c, n]) => meaningful(n) || removedSet.has(c) || movedFrom.has(c))
+      .map(([c, n]) => mk(c, n));
+    let newCols = Object.entries(mapNew)
+      .filter(([c, n]) => meaningful(n) || addedSet.has(c) || movedTo.has(c) || changeVol(c) > 0)
+      .map(([c, n]) => mk(c, n));
+    oldCols.sort((a, b) => a.idx - b.idx);
+    newCols.sort((a, b) => a.idx - b.idx);
+    if (!oldCols.length && !newCols.length) return '';
+
+    // Priority: Added > Logic changed (new track), Removed (old track).
+    // Everything else is "minor" but still split into shifted vs unchanged so
+    // collapsed runs never blur the two together.
+    const newCat = co => addedSet.has(co.letter) ? 'added'
+      : (cnt[co.letter] && cnt[co.letter].semantic) ? 'logic'
+      : movedTo.has(co.letter) ? 'shifted'
+      : 'unchanged';
+    const oldCat = co => removedSet.has(co.letter) ? 'removed'
+      : movedFrom.has(co.letter) ? 'shifted'
+      : 'unchanged';
+
+    if (!oldCols.length && !newCols.length) {
+      return `<div class="ov-card cm-card"><div class="ov-card-hdr">
+          <span class="ov-card-title">Column Map — What Changed</span>
+        </div>
+        <div class="ov-empty-card" style="border:none">
+          <div style="font-size:26px;margin-bottom:6px">&#10003;</div>
+          <strong>No column-level changes</strong><br>Columns were neither added, removed, shifted, nor had logic changes.
+        </div></div>`;
+    }
+
+    // ── shared geometry & tile builders (explicit x) ─────────────
+    // Tile sized/styled like a real Excel column: shaded letter header + gridlined body.
+    const TW = 72, TH = 108, GAP = 12, EW = 50, MIDGAP = 90, PADX = 6, PADY = 4;
+    const yOld = PADY, yNew = PADY + TH + MIDGAP;
+    const H = yNew + TH + PADY;
+
+    const badges = c => {
+      const v = cnt[c]; if (!v) return '';
+      let b = '';
+      if (v.semantic) b += `<span class="cm-b cm-b-logic" title="${v.semantic} logic change(s)">${v.semantic > 99 ? '99+' : v.semantic}</span>`;
+      if (v.refshift) b += `<span class="cm-b cm-b-ref" title="${v.refshift} reference shift(s)">${v.refshift > 99 ? '99+' : v.refshift}</span>`;
+      return b ? `<span class="cm-badges">${b}</span>` : '';
+    };
+    const newTileAt = (co, xpos, ypos = yNew) => {
+      const c = co.letter;
+      let status = 'same', tag = '';
+      if (addedSet.has(c))                { status = 'added'; tag = '<span class="cm-tag cm-tag-added">NEW</span>'; }
+      else if (cnt[c] && cnt[c].semantic) { status = 'logic'; }
+      else if (movedTo.has(c))            { status = 'moved'; tag = `<span class="cm-tag cm-tag-moved">${x(movedTo.get(c).from)}&#8594;${x(c)}</span>`; }
+      else if (cnt[c] && cnt[c].refshift) { status = 'refonly'; }
+      return `<div class="cm-tile cm-${status}" style="left:${xpos}px;top:${ypos}px;width:${TW}px;height:${TH}px"
+           title="${x(co.name)} — column ${x(c)}${addedSet.has(c) ? ' (newly added)' : movedTo.has(c) ? ` (shifted from ${x(movedTo.get(c).from)})` : ''}"
+           onclick="dashMode='changes';col='${x(c)}';chgType='semantic';renderApp()">
+        <div class="cm-tile-top"><span class="cm-ref">${x(c)}</span>${tag}</div>
+        <div class="cm-tile-body"><div class="cm-name">${x(co.name)}</div>${badges(c)}</div>
+      </div>`;
+    };
+    const oldTileAt = (co, xpos) => {
+      const c = co.letter;
+      let status = 'static', tag = '';
+      if (removedSet.has(c))     { status = 'removed cm-static'; tag = '<span class="cm-tag cm-tag-removed">DEL</span>'; }
+      else if (movedFrom.has(c)) { status = 'movedfrom cm-static'; }
+      return `<div class="cm-tile cm-${status}" style="left:${xpos}px;top:${yOld}px;width:${TW}px;height:${TH}px" title="${x(co.name)} — column ${x(c)}">
+        <div class="cm-tile-top"><span class="cm-ref">${x(c)}</span>${tag}</div>
+        <div class="cm-tile-body"><div class="cm-name">${x(co.name)}</div></div>
+      </div>`;
+    };
+    // Two distinct chip kinds so a run of position-shifts never reads the same as a run of untouched columns.
+    const ellipsisAt = (n, xpos, y, kind) => {
+      const shifted = kind === 'shifted';
+      const icon = shifted ? '&#8646;' : '&#8943;';
+      const label = shifted ? 'shifted' : 'unchanged';
+      return `<div class="cm-ellipsis cm-ellipsis-${kind}" style="left:${xpos}px;top:${y}px;height:${TH}px;width:${EW}px"
+         title="${n} ${label} column(s) hidden — click to view all"
+         onclick="cmShowAll=true;renderApp()">
+        <span class="cm-ell-dots">${icon}</span><span class="cm-ell-cnt">${n > 999 ? '999+' : n}</span><span class="cm-ell-lbl">${label}</span>
+      </div>`;
+    };
+
+    const toggleBtn = `<button class="cm-toggle" onclick="cmShowAll=${!cmShowAll};renderApp()">${cmShowAll ? '&#8592; Priority only' : 'View all columns &#8594;'}</button>`;
+
+    let canvasHtml, contentW, note, legend, gutterHtml, cardH;
+
+    if (!cmShowAll) {
+      // ── Collapsed: priority tiles; runs of the SAME minor sub-kind → one ellipsis chip ──
+      const nRemoved = oldCols.filter(co => removedSet.has(co.letter)).length;
+      const nAdded   = newCols.filter(co => addedSet.has(co.letter)).length;
+      const nLogic   = newCols.filter(co => newCat(co) === 'logic').length;
+      const nShift   = cs.movedCols.length;
+      // Nothing was removed from the old workbook — an OLD track would just repeat
+      // the same shifted/unchanged chips as NEW, so skip it and show one track.
+      const showOld = nRemoved > 0;
+
+      const buildItems = (cols, catFn, prio) => {
+        const items = []; let run = 0, runKind = null;
+        for (const co of cols) {
+          const cat = catFn(co);
+          if (prio.has(cat)) {
+            if (run) { items.push({ ell: run, kind: runKind }); run = 0; runKind = null; }
+            items.push({ co });
+          } else {
+            if (run && runKind !== cat) { items.push({ ell: run, kind: runKind }); run = 0; }
+            runKind = cat; run++;
+          }
+        }
+        if (run) items.push({ ell: run, kind: runKind });
+        return items;
+      };
+      const layout = items => {
+        let cx = PADX; const placed = [];
+        for (const it of items) { const w = it.ell ? EW : TW; placed.push({ it, x: cx }); cx += w + GAP; }
+        return { placed, width: cx - GAP + PADX };
+      };
+      const newItems = buildItems(newCols, newCat, new Set(['added', 'logic']));
+      const newL = layout(newItems);
+
+      let oldHtml = '';
+      if (showOld) {
+        const oldItems = buildItems(oldCols, oldCat, new Set(['removed']));
+        const oldL = layout(oldItems);
+        contentW = Math.max(oldL.width, newL.width, 1);
+        const offOld = (contentW - oldL.width) / 2, offNew = (contentW - newL.width) / 2;
+        oldHtml = oldL.placed.map(p => p.it.ell ? ellipsisAt(p.it.ell, offOld + p.x, yOld, p.it.kind) : oldTileAt(p.it.co, offOld + p.x)).join('');
+        var newRowY = yNew, newOffset = offNew;
+        cardH = H;
+        gutterHtml = `<span class="cm-glabel" style="top:${yOld}px;height:${TH}px">OLD</span>
+          <span class="cm-glabel" style="top:${yNew}px;height:${TH}px">NEW</span>`;
+      } else {
+        contentW = Math.max(newL.width, 1);
+        var newRowY = PADY, newOffset = (contentW - newL.width) / 2;
+        cardH = PADY * 2 + TH;
+        gutterHtml = '';
+      }
+      const newHtml = newL.placed.map(p => p.it.ell ? ellipsisAt(p.it.ell, newOffset + p.x, newRowY, p.it.kind) : newTileAt(p.it.co, newOffset + p.x, newRowY)).join('');
+      canvasHtml = `<div class="colmap-canvas" style="width:${contentW}px;height:${cardH}px">${oldHtml}${newHtml}</div>`;
+
+      legend = `<div class="cm-legend">
+        <span class="cm-lg"><i class="cm-sw cm-sw-added"></i>Added</span>
+        <span class="cm-lg"><i class="cm-sw cm-sw-logic"></i>Logic changed</span>
+        ${showOld ? '<span class="cm-lg"><i class="cm-sw cm-sw-removed"></i>Removed</span>' : ''}
+        <span class="cm-lg"><span class="cm-ell-dots" style="font-size:12px;line-height:1;color:var(--c-refshift)">&#8646;</span>Shifted (collapsed)</span>
+        <span class="cm-lg"><span class="cm-ell-dots" style="font-size:12px;line-height:1">&#8943;</span>Unchanged (collapsed)</span>
+        ${toggleBtn}
+      </div>`;
+      note = `<div class="cm-note">Focusing on <b style="color:var(--c-added)">${nAdded} added</b>, <b style="color:var(--c-semantic)">${nLogic} logic-changed</b>${showOld ? ` &amp; <b style="color:var(--c-removed)">${nRemoved} removed</b>` : ''} column(s).${nShift ? ` ${nShift.toLocaleString()} position-shifted column(s) collapsed into &#8646; — unchanged columns collapsed into &#8943;.` : ''} <span class="cm-inline-link" onclick="cmShowAll=true;renderApp()">View all columns &#8594;</span></div>`;
+    } else {
+      cardH = H;
+      gutterHtml = `<span class="cm-glabel" style="top:${yOld}px;height:${TH}px">OLD</span>
+        <span class="cm-glabel" style="top:${yNew}px;height:${TH}px">NEW</span>`;
+      // ── View all: full before/after diagram with shift connectors ──
+      const CAP = 250;
+      let capNote = '';
+      if (newCols.length > CAP) { newCols = newCols.slice(0, CAP); capNote = ` (first ${CAP} shown)`; }
+      if (oldCols.length > CAP) { oldCols = oldCols.slice(0, CAP); }
+      const pitch = TW + GAP;
+      const nMax = Math.max(oldCols.length, newCols.length, 1);
+      const offOld = (nMax - oldCols.length) * pitch / 2;
+      const offNew = (nMax - newCols.length) * pitch / 2;
+      const xOld = i => PADX + offOld + i * pitch;
+      const xNew = j => PADX + offNew + j * pitch;
+      contentW = PADX * 2 + nMax * pitch - GAP;
+
+      const newByName = {};
+      newCols.forEach((co, j) => { if (co.matchName) newByName[co.matchName] = Object.assign({ j }, co); });
+      let paths = '';
+      oldCols.forEach((co, i) => {
+        const nt = co.matchName ? newByName[co.matchName] : null;
+        if (!nt) return;
+        const x1 = xOld(i) + TW / 2, y1 = yOld + TH;
+        const x2 = xNew(nt.j) + TW / 2, y2 = yNew;
+        const moved = co.letter !== nt.letter;
+        const cy = (y1 + y2) / 2;
+        paths += `<path d="M${x1},${y1} C${x1},${cy} ${x2},${cy} ${x2},${y2}" fill="none" stroke="${moved ? 'var(--c-refshift)' : 'var(--border)'}" stroke-width="${moved ? 2 : 1.3}" opacity="${moved ? 0.9 : 0.55}"/>`;
+      });
+      const oldHtml = oldCols.map((co, i) => oldTileAt(co, xOld(i))).join('');
+      const newHtml = newCols.map((co, j) => newTileAt(co, xNew(j))).join('');
+      canvasHtml = `<div class="colmap-canvas" style="width:${contentW}px;height:${H}px">
+        <svg class="colmap-svg" width="${contentW}" height="${H}">${paths}</svg>${oldHtml}${newHtml}</div>`;
+
+      legend = `<div class="cm-legend">
+        <span class="cm-lg"><i class="cm-sw cm-sw-added"></i>Added</span>
+        <span class="cm-lg"><i class="cm-sw cm-sw-removed"></i>Removed</span>
+        <span class="cm-lg"><i class="cm-sw cm-sw-moved"></i>Shifted</span>
+        <span class="cm-lg"><i class="cm-sw cm-sw-logic"></i>Logic changed</span>
+        <span class="cm-lg"><i class="cm-sw cm-sw-ref"></i>Ref shift</span>
+        ${toggleBtn}
+      </div>`;
+      note = `<div class="cm-note">Showing every column${capNote} with old&#8594;new position links. Blue curves are shifts.</div>`;
+    }
+
+    return `<div class="ov-card cm-card">
+      <div class="ov-card-hdr">
+        <span class="ov-card-title">Column Map — What Changed</span>
+        <span class="ov-card-sub">${cmShowAll ? 'Full old vs new column layout — insertions, shifts &amp; logic changes.' : 'Added, logic-changed &amp; removed columns first. Click a column to drill in.'}</span>
+      </div>
+      ${legend}
+      <div class="colmap-wrap">
+        <div class="colmap-gutter" style="height:${cardH}px">${gutterHtml}</div>
+        <div class="colmap-scroll">${canvasHtml}</div>
+      </div>
+      ${note}
+    </div>`;
+  }
+
+  // ── Column Focus — why THIS column changed, and what it further impacts ──
+  function renderColFocus(colLetter) {
+    const el = document.getElementById('cv-colfocus');
+    if (!el) return;
+    if (!colLetter) { el.hidden = true; el.innerHTML = ''; return; }
+
+    const mapOld = ((D.column_mapping || {}).old || {})[sheet] || {};
+    const mapNew = ((D.column_mapping || {}).new || {})[sheet] || {};
+    const cs = colStructure || { addedCols: [], removedCols: [], movedCols: [] };
+    const addedSet   = new Set(cs.addedCols);
+    const removedSet = new Set(cs.removedCols);
+    const movedTo    = new Map(cs.movedCols.map(m => [m.to, m]));
+    const movedFrom  = new Map(cs.movedCols.map(m => [m.from, m]));
+    const colIdx = s => { let n = 0; for (const ch of String(s)) n = n * 26 + (ch.charCodeAt(0) - 64); return n; };
+
+    const isAdded   = addedSet.has(colLetter);
+    const isRemoved = removedSet.has(colLetter);
+    const moveInfo  = movedTo.get(colLetter) || null;
+    const oldLetter = moveInfo ? moveInfo.from : colLetter;
+    const newLetter = moveInfo ? moveInfo.to   : colLetter;
+    const name = isRemoved
+      ? (mapOld[colLetter] || mapNew[colLetter] || colLetter)
+      : (mapNew[colLetter] || mapOld[colLetter] || colLetter);
+
+    const rows = rowCache[sheet] || [];
+    const ownRows = rows.filter(r => r.col === colLetter);
+    if (!ownRows.length && !isAdded && !isRemoved && !moveInfo) { el.hidden = true; el.innerHTML = ''; return; }
+    const ownCnt = { added: 0, removed: 0, semantic: 0, refshift: 0 };
+    for (const r of ownRows) if (ownCnt[r.kind] !== undefined) ownCnt[r.kind]++;
+
+    // ── LEFT: why this column changed ──────────────────────────
+    let causeZone;
+    if (isAdded) {
+      causeZone = `<div class="cf-note">This column is <b>brand new</b> — inserted directly in the new workbook. It has no upstream cause.</div>`;
+    } else if (isRemoved) {
+      causeZone = `<div class="cf-note">This column was <b>deleted</b> — it no longer exists in the new workbook.</div>`;
+    } else if (moveInfo) {
+      const oi = colIdx(oldLetter), ni = colIdx(newLetter);
+      const causesAdded   = cs.addedCols.filter(c => colIdx(c) <= ni).sort((a, b) => colIdx(b) - colIdx(a));
+      const causesRemoved = cs.removedCols.filter(c => colIdx(c) <= oi).sort((a, b) => colIdx(b) - colIdx(a));
+      const dir = ni > oi ? 'right' : 'left';
+      const SHOW = 3;
+      const chipsAdded = causesAdded.slice(0, SHOW).map(c =>
+        `<span class="cf-chip cf-chip-added" title="Inserted column — pushed later columns ${dir}" onclick="dashMode='changes';col='${x(c)}';chgType='added';renderApp()">
+          <span class="cf-chip-letter">${x(c)}</span><span class="cf-chip-name">${x(mapNew[c] || c)}</span>
+        </span>`).join('');
+      const chipsRemoved = causesRemoved.slice(0, SHOW).map(c =>
+        `<span class="cf-chip cf-chip-removed" title="Removed column — pulled later columns left" onclick="dashMode='changes';col='${x(c)}';chgType='removed';renderApp()">
+          <span class="cf-chip-letter">${x(c)}</span><span class="cf-chip-name">${x(mapOld[c] || c)}</span>
+        </span>`).join('');
+      const extra = (causesAdded.length - SHOW) + (causesRemoved.length - SHOW);
+      causeZone = `<div class="cf-note">Shifted <b>${oldLetter} &#8594; ${newLetter}</b> because ${causesAdded.length + causesRemoved.length} column(s) were inserted/removed earlier in the sheet:</div>
+        <div class="cf-chips">${chipsAdded}${chipsRemoved}</div>
+        ${extra > 0 ? `<div class="cf-more-note">+${extra} more contributing column(s) — see Structural Shifts</div>` : ''}`;
+    } else if (ownCnt.semantic > 0) {
+      causeZone = `<div class="cf-note">No structural cause — this column stayed in place. Its <b>formula logic itself changed</b> in ${ownCnt.semantic.toLocaleString()} cell(s).</div>`;
+    } else {
+      causeZone = `<div class="cf-empty">Nothing changed for this column.</div>`;
+    }
+
+    // ── CENTER: this column's own old→new identity ─────────────
+    const selfStatusCls = isAdded ? 'cf-self-added' : isRemoved ? 'cf-self-removed' : moveInfo ? 'cf-self-moved' : '';
+    let selfHtml;
+    if (isRemoved) {
+      selfHtml = `<div class="cf-self-wrap">
+        <div class="cf-self-tile cf-self-removed"><div class="cf-self-tile-hdr">${x(colLetter)}</div><div class="cf-self-tile-body">${x(name)}</div></div>
+      </div>`;
+    } else if (moveInfo || isAdded) {
+      selfHtml = `<div class="cf-self-wrap">
+        ${moveInfo ? `<div class="cf-self-tile"><div class="cf-self-tile-hdr">${x(oldLetter)}</div><div class="cf-self-tile-body">${x(name)}</div></div><span class="cf-self-arrow">&#8594;</span>` : ''}
+        <div class="cf-self-tile ${selfStatusCls}"><div class="cf-self-tile-hdr">${x(newLetter)}</div><div class="cf-self-tile-body">${x(name)}</div></div>
+      </div>`;
+    } else {
+      selfHtml = `<div class="cf-self-wrap">
+        <div class="cf-self-tile"><div class="cf-self-tile-hdr">${x(colLetter)}</div><div class="cf-self-tile-body">${x(name)}</div></div>
+      </div>`;
+    }
+    const selfBadges = [
+      ownCnt.added    ? `<span class="cf-self-badge cf-sb-added">+${ownCnt.added.toLocaleString()} added</span>` : '',
+      ownCnt.removed  ? `<span class="cf-self-badge cf-sb-removed">&#8722;${ownCnt.removed.toLocaleString()} removed</span>` : '',
+      ownCnt.semantic ? `<span class="cf-self-badge cf-sb-semantic">${ownCnt.semantic.toLocaleString()} logic</span>` : '',
+      ownCnt.refshift ? `<span class="cf-self-badge cf-sb-refshift">${ownCnt.refshift.toLocaleString()} ref-shift</span>` : '',
+    ].filter(Boolean).join('');
+
+    // ── RIGHT: what THIS column's change further impacts downstream ──
+    // Naive dependency scan: which other changed cells' formulas reference this column's letter.
+    let impactZone;
+    if (isRemoved) {
+      impactZone = `<div class="cf-note">Any formula elsewhere that referenced <b>${x(colLetter)}</b> now points at a missing column — check the Removed tab for fallout.</div>`;
+    } else {
+      const ftext = r => (r.kind === 'added' || r.kind === 'removed') ? (r.formula || '') : (r.newF || r.oldF || '');
+      let re;
+      try { re = new RegExp('(?<![A-Za-z])' + newLetter + '(?=\\$?\\d)'); } catch { re = null; }
+      const impactCnt = {};
+      if (re) {
+        for (const r of rows) {
+          if (r.col === colLetter || r.kind === 'unchanged') continue;
+          const t = ftext(r);
+          if (t && re.test(t)) impactCnt[r.col] = (impactCnt[r.col] || 0) + 1;
+        }
+      }
+      const impactEntries = Object.entries(impactCnt).sort((a, b) => b[1] - a[1]);
+      if (!impactEntries.length) {
+        impactZone = `<div class="cf-empty">No other changed formulas in this sheet reference ${x(colLetter)} directly.</div>`;
+      } else {
+        const SHOW = 5;
+        const chips = impactEntries.slice(0, SHOW).map(([c, n]) =>
+          `<span class="cf-chip cf-chip-impact" title="${n} changed formula(s) reference this column" onclick="dashMode='changes';col='${x(c)}';chgType='semantic';renderApp()">
+            <span class="cf-chip-letter">${x(c)}</span><span class="cf-chip-name">${x(colName(c, sheet) || c)}</span><span class="cf-chip-cnt">${n}</span>
+          </span>`).join('');
+        const extra = impactEntries.length - SHOW;
+        impactZone = `<div class="cf-note">${impactEntries.length} column(s) have changed formulas that reference ${x(colLetter)}:</div>
+          <div class="cf-chips">${chips}</div>
+          ${extra > 0 ? `<div class="cf-more-note">+${extra} more downstream column(s)</div>` : ''}`;
+      }
+    }
+
+    el.hidden = false;
+    el.innerHTML = `<div class="cf-card">
+      <div class="cf-zone">
+        <div class="cf-zone-title">Why it changed</div>
+        ${causeZone}
+      </div>
+      <div class="cf-zone" style="flex:0 0 200px;align-items:center">
+        <div class="cf-zone-title">This column</div>
+        ${selfHtml}
+        <div class="cf-self-badges">${selfBadges}</div>
+      </div>
+      <div class="cf-zone">
+        <div class="cf-zone-title"><span class="cf-arrow-ico">&#8594;</span>What it impacts downstream</div>
+        ${impactZone}
+      </div>
+    </div>`;
+  }
+
   // ── Overview / Dashboard ───────────────────────────────────────
   function renderOverview() {
     const rows = rowCache[sheet] || [];
@@ -2366,10 +3006,18 @@
     const total = rows.length;
 
     // Stat cards
+    const bkAddSplit = shiftSplit(sheet, 'added');
+    const bkRemSplit = shiftSplit(sheet, 'removed');
+    const addedHint = bkAddSplit.shifted
+      ? `New formulas in new workbook — ${bkAddSplit.shifted.toLocaleString()} of these only landed here because a column shifted (not new content), ${bkAddSplit.other.toLocaleString()} are actually new.`
+      : 'New formulas in new workbook';
+    const removedHint = bkRemSplit.shifted
+      ? `Formulas removed — ${bkRemSplit.shifted.toLocaleString()} of these only moved away because a column shifted (not deleted), ${bkRemSplit.other.toLocaleString()} are truly removed.`
+      : 'Formulas removed';
     const cards = [
       { label:'Logic Changed', hint:'Formula logic actually changed', val:cntSemantic, cls:'sc-semantic', page:'changes' },
-      { label:'Added',         hint:'New formulas in new workbook',   val:cntAdded,    cls:'sc-added',    page:'changes' },
-      { label:'Removed',       hint:'Formulas removed',               val:cntRemoved,  cls:'sc-removed',  page:'changes' },
+      { label:'Added',         hint:addedHint,   val:cntAdded,    cls:'sc-added',    page:'changes' },
+      { label:'Removed',       hint:removedHint, val:cntRemoved,  cls:'sc-removed',  page:'changes' },
       { label:'Ref Shifts',    hint:'Cell reference moved (same logic)', val:cntRefshift, cls:'sc-refshift', page:'structural' },
       { label:'Unchanged',     hint:'Identical formulas',             val:cntUnch,     cls:'sc-unch',     page:null },
     ];
@@ -2382,10 +3030,11 @@
         const affected = rows.filter(r => r.col === c).length;
         const impact = affected > 500 ? 'High' : affected > 100 ? 'Medium' : 'Low';
         const chipCls = affected > 500 ? 'ov-chip-high' : affected > 100 ? 'ov-chip-medium' : 'ov-chip-low';
-        return `<tr>
+        const cellText = affected > 0 ? `${affected.toLocaleString()} formula${affected === 1 ? '' : 's'}` : 'No formula';
+        return `<tr class="ov-add-row" onclick="cmAddedRowClick('${x(c)}', ${affected})">
           <td style="font-weight:600">${x(nm)}</td>
           <td><span class="ov-col-badge">${x(c)}</span></td>
-          <td>${affected.toLocaleString()} formulas</td>
+          <td${affected === 0 ? ' style="color:var(--text-muted)"' : ''}>${cellText}</td>
           <!-- <td><span class="ov-impact-chip ${chipCls}">${impact}</span></td> -->
         </tr>`;
       }).join('');
@@ -2408,7 +3057,7 @@
     if (cs.removedCols.length) {
       const rows2 = cs.removedCols.map(c => {
         const nm = mapOld[c] || c;
-        return `<tr>
+        return `<tr class="ov-shift-row" onclick="dashMode='changes';col='${x(c)}';renderApp()">
           <td style="font-weight:600">${x(nm)}</td>
           <td><span class="ov-col-badge" style="background:rgba(199,54,80,.1);color:var(--c-removed);border-color:rgba(199,54,80,.3)">${x(c)}</span></td>
           <td style="color:var(--c-removed)">Removed from new workbook</td>
@@ -2468,7 +3117,7 @@
     // Change breakdown card (right)
     const bkRows = cards.filter(c => c.val > 0).map(c => {
       const pct = total ? Math.round(c.val/total*100) : 0;
-      return `<div class="ov-bk-row ${c.cls}">
+      return `<div class="ov-bk-row ${c.cls}"${c.hint ? ` title="${x(c.hint)}"` : ''}>
         <span class="ov-bk-label">${c.label}</span>
         <div class="ov-bk-bar-wrap"><div class="ov-bk-bar" style="width:${pct}%"></div></div>
         <span class="ov-bk-num">${c.val.toLocaleString()}</span>
@@ -2489,7 +3138,7 @@
     if (cs.movedCols.length) {
       const shiftRows = cs.movedCols.slice(0, 8).map(m => {
         const affected = rows.filter(r => r.col === m.to).length;
-        return `<tr>
+        return `<tr class="ov-shift-row" onclick="dashMode='changes';col='${x(m.to)}';renderApp()">
           <td style="font-weight:500">${x(m.name)}</td>
           <td><span class="ov-col-badge shifted">${x(m.from)}</span><span class="ov-arrow">&#8594;</span><span class="ov-col-badge shifted">${x(m.to)}</span></td>
           <td style="color:var(--c-refshift)">${affected.toLocaleString()}</td>
@@ -2517,6 +3166,7 @@
           <div class="ov-page-title">Overview</div>
           <div class="ov-page-sub">Formula comparison summary for this sheet</div>
         </div>
+        ${columnMapHtml()}
         <div class="ov-grid">
           <div class="ov-left">${leftCards}${shiftCard}</div>
           <div class="ov-right">${summaryCard}</div>
@@ -2572,12 +3222,20 @@
       if (first) chgType = first.kind;
     }
 
+    const tabHint = t => {
+      if (t.kind !== 'added' && t.kind !== 'removed') return '';
+      const shifted = baseRows.filter(r => r.kind === t.kind && r.reason && r.reason.type === 'column_shifted').length;
+      if (!shifted) return '';
+      const otherWord = t.kind === 'added' ? 'newly added' : 'truly removed';
+      return ` title="${x(`${shifted.toLocaleString()} of these only moved here because a column shifted — ${t.count - shifted} are ${otherWord}.`)}"`;
+    };
+
     const tabBar = document.getElementById('chg-type-bar');
     tabBar.innerHTML =
       `<button class="ct-home-btn" onclick="dashMode='overview';col=null;renderApp()">&#8592; Overview</button>` +
       TABS.map(t =>
         t.count > 0
-          ? `<button class="ct-tab ${t.cls}${chgType===t.kind?' ct-active':''}"
+          ? `<button class="ct-tab ${t.cls}${chgType===t.kind?' ct-active':''}"${tabHint(t)}
                onclick="chgType='${t.kind}';renderChangesView()">
                ${t.label} <span class="ct-badge">${t.count.toLocaleString()}</span>
              </button>`
@@ -2592,6 +3250,7 @@
     // ── COLUMN-LEVEL VIEW (no column selected) ──────────────────
     if (!col) {
       if (breadcrumb) breadcrumb.hidden = true;
+      renderColFocus(null);
       if (cdrop) cdrop.style.display = 'none';
       if (cvSrch) cvSrch.placeholder = 'Search columns…';
 
@@ -2661,6 +3320,7 @@
          <span class="cv-bc-name">${x(nm)}</span>
          <span class="cv-bc-letter">${x(col)}</span>`;
     }
+    renderColFocus(col);
     if (cdrop) cdrop.style.display = '';
     if (cvSrch) cvSrch.placeholder = 'Search by cell, column or formula…';
 
@@ -3175,9 +3835,38 @@
   function colName(colLetter, s) {
     const nm = D.column_mapping;
     if (!nm) return '';
+    // Letters get reused: a removed old-side column's letter can also be where some
+    // other column landed after shifting. For a removed column, the old name is the
+    // only one that's actually about this letter — prefer it over an unrelated new one.
+    if (s === sheet && colStructure && colStructure.removedCols.includes(colLetter)) {
+      return ((nm.old || {})[s] || {})[colLetter] || ((nm.new || {})[s] || {})[colLetter] || '';
+    }
     return ((nm.new || {})[s] || {})[colLetter]
         || ((nm.old || {})[s] || {})[colLetter]
         || '';
+  }
+
+  // Added-column row in the Overview: drill into its formulas, or explain why there's nothing to show.
+  function cmAddedRowClick(colLetter, affected) {
+    if (affected > 0) { dashMode = 'changes'; chgType = 'added'; col = colLetter; renderApp(); return; }
+    const nm = colName(colLetter, sheet) || colLetter;
+    showColEmptyToast(`<strong>${x(nm)}</strong> (${x(colLetter)}) has no formulas in either workbook — nothing to compare.`);
+  }
+
+  function showColEmptyToast(html) {
+    let el = document.getElementById('app-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'app-toast';
+      el.className = 'app-toast';
+      document.body.appendChild(el);
+    }
+    el.innerHTML = html;
+    el.classList.remove('show');
+    void el.offsetWidth; // restart transition if already visible
+    el.classList.add('show');
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => el.classList.remove('show'), 3200);
   }
 
   function buildColRows(s) {
@@ -3392,18 +4081,29 @@
     }
   }
 
+  function scardHtml(cls, num, label, split, otherWord) {
+    let sub = '';
+    if (split && split.shifted) {
+      const tip = `${split.shifted.toLocaleString()} of these only moved to a new address because a column was inserted/removed elsewhere — they are not ${otherWord}. The other ${split.other.toLocaleString()} are ${otherWord}.`;
+      sub = `<div class="scard-sub" title="${x(tip)}">${split.shifted.toLocaleString()} from column shift</div>`;
+    }
+    return `<div class="scard ${cls}"><div class="snum">${num.toLocaleString()}</div><div class="slabel">${label}</div>${sub}</div>`;
+  }
+
   function renderStats() {
     const strip = document.getElementById('stats-strip');
     // Hide strip on overview — the overview has its own stat cards
     if (dashMode === 'overview') { strip.hidden = true; return; }
     strip.hidden = false;
     const s = stats(sheet);
-    strip.innerHTML = `
-    <div class="scard sa"><div class="snum">${s.added.toLocaleString()}</div><div class="slabel">Added</div></div>
-    <div class="scard sr"><div class="snum">${s.removed.toLocaleString()}</div><div class="slabel">Removed</div></div>
-    <div class="scard ss"><div class="snum">${s.semantic.toLocaleString()}</div><div class="slabel">Logic Changed</div></div>
-    <div class="scard sf"><div class="snum">${s.refshift.toLocaleString()}</div><div class="slabel">Ref Shift</div></div>
-    <div class="scard su"><div class="snum">${s.unchanged.toLocaleString()}</div><div class="slabel">Unchanged</div></div>`;
+    const aSplit = shiftSplit(sheet, 'added');
+    const rSplit = shiftSplit(sheet, 'removed');
+    strip.innerHTML =
+      scardHtml('sa', s.added, 'Added', aSplit, 'newly added') +
+      scardHtml('sr', s.removed, 'Removed', rSplit, 'truly removed') +
+      `<div class="scard ss"><div class="snum">${s.semantic.toLocaleString()}</div><div class="slabel">Logic Changed</div></div>
+       <div class="scard sf"><div class="snum">${s.refshift.toLocaleString()}</div><div class="slabel">Ref Shift</div></div>
+       <div class="scard su"><div class="snum">${s.unchanged.toLocaleString()}</div><div class="slabel">Unchanged</div></div>`;
   }
 
   function colStatsLabel(s) {
