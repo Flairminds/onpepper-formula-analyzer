@@ -74,6 +74,16 @@ def get_report(version):
     return send_from_directory(REPORTS_DIR, name)
 
 
+@app.route("/api/reports/<int:version>", methods=["DELETE"])
+def delete_report(version):
+    name = f"comparison_report_{version}.json"
+    path = os.path.join(REPORTS_DIR, name)
+    if not os.path.isfile(path):
+        abort(404)
+    os.remove(path)
+    return jsonify({"deleted": version})
+
+
 @app.route("/api/compare", methods=["POST"])
 def compare():
     old_file = request.files.get("old_file")

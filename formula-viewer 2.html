@@ -316,6 +316,28 @@
     border-radius: 999px;
     padding: 3px 10px;
   }
+  .hi-delete {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted, currentColor);
+    cursor: pointer;
+    opacity: .55;
+    transition: opacity .2s, background .2s, color .2s;
+  }
+  .hi-delete:hover, .hi-delete:focus-visible {
+    opacity: 1;
+    background: color-mix(in srgb, var(--c-removed) 16%, transparent);
+    color: var(--c-removed);
+    outline: none;
+  }
+  .hi-delete svg { width: 14px; height: 14px; pointer-events: none; }
   .hi-files {
     display: flex;
     flex-direction: column;
@@ -4378,6 +4400,9 @@
         `<div class="history-item" role="button" tabindex="0" data-version="${x(r.version)}">
            <div class="hi-top">
              <span class="hi-ver">v${x(r.version)}</span>
+             <button class="hi-delete" type="button" title="Delete report" aria-label="Delete report v${x(r.version)}" data-version="${x(r.version)}">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+             </button>
            </div>
            <div class="hi-files">
              <div class="hi-file old"><span class="hi-tag">Old</span><span class="hi-name">${x(r.old_file || '—')}</span></div>
@@ -4411,8 +4436,26 @@
     init(`comparison_report_${v}.json`);
   }
 
+  async function deleteHistoryItem(btn) {
+    const v = btn.dataset.version;
+    if (!confirm(`Delete report v${v}? This cannot be undone.`)) return;
+    const res = await fetch(`/api/reports/${v}`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 404) return;
+    const item = btn.closest('.history-item');
+    const wasActive = item && item.classList.contains('active');
+    await loadHistory();
+    if (wasActive) {
+      D = null;
+      document.getElementById('history-toggle') && setHistoryCollapsed(false);
+      // no report open anymore — send the user back to the upload/compare screen
+      location.reload();
+    }
+  }
+
   const historyListEl = document.getElementById('history-list');
   historyListEl.addEventListener('click', e => {
+    const delBtn = e.target.closest('.hi-delete');
+    if (delBtn) { e.stopPropagation(); deleteHistoryItem(delBtn); return; }
     const item = e.target.closest('.history-item');
     if (item) openHistoryItem(item);
   });
