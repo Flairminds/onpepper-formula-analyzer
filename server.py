@@ -111,7 +111,7 @@ def compare():
     with open(os.path.join(REPORTS_DIR, out_name), "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    return jsonify({"version": version, "file": out_name, "report": report})
+    return jsonify({"version": version, "file": out_name})
 
 
 @app.route("/api/export", methods=["POST"])

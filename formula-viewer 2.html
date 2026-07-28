@@ -596,6 +596,50 @@
     box-shadow: 0 12px 24px -7px color-mix(in srgb, var(--accent) 75%, transparent)
   }
   .drop-btn:active { transform: translateY(0) }
+  .drop-btn:disabled {
+    cursor: default;
+    opacity: .65;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .compare-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+  }
+  .compare-progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .compare-spinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-top-color: var(--accent);
+    animation: compareSpin .8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes compareSpin { to { transform: rotate(360deg) } }
+  .compare-progress-bar {
+    width: 100%;
+    max-width: 220px;
+    height: 4px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--border) 70%, transparent);
+    overflow: hidden;
+  }
+  .compare-progress-fill {
+    height: 100%;
+    width: 8%;
+    border-radius: 999px;
+    background: var(--accent);
+    transition: width .6s ease-out;
+  }
 
   .drop-or {
     font-size: 10.5px;
@@ -4466,24 +4510,69 @@
   });
 
   document.getElementById('run-compare-btn').addEventListener('click', async () => {
-    const oldF = document.getElementById('old-xlsx-input').files[0];
-    const newF = document.getElementById('new-xlsx-input').files[0];
+    const btn = document.getElementById('run-compare-btn');
+    const oldInput = document.getElementById('old-xlsx-input');
+    const newInput = document.getElementById('new-xlsx-input');
+    const oldF = oldInput.files[0];
+    const newF = newInput.files[0];
     const status = document.getElementById('compare-status');
     if (!oldF || !newF) { status.textContent = 'Choose both an old and a new workbook first.'; return; }
 
-    status.textContent = 'Comparing… this can take a while for large workbooks.';
+    // Rough estimate: ~1s per 100KB combined, floor 15s, cap 180s — just enough to
+    // give the user a sense of scale; real duration depends on server load/CPU.
+    const combinedMB = (oldF.size + newF.size) / (1024 * 1024);
+    const estimateSec = Math.min(180, Math.max(15, Math.round(combinedMB * 8)));
+    const startedAt = performance.now();
+    let tickHandle = null;
+
+    function render(elapsedSec) {
+      const pct = Math.min(96, 6 + (elapsedSec / estimateSec) * 90);
+      const remaining = Math.max(0, estimateSec - elapsedSec);
+      const etaText = elapsedSec < estimateSec
+        ? `~${remaining}s left (est.)`
+        : `taking longer than expected — large workbooks can take a few minutes`;
+      status.innerHTML = `
+        <div class="compare-progress">
+          <div class="compare-progress-row">
+            <span class="compare-spinner"></span>
+            <span>Comparing… ${elapsedSec}s elapsed, ${etaText}</span>
+          </div>
+          <div class="compare-progress-bar"><div class="compare-progress-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+
+    btn.disabled = true;
+    oldInput.disabled = true;
+    newInput.disabled = true;
+    render(0);
+    tickHandle = setInterval(() => {
+      render(Math.floor((performance.now() - startedAt) / 1000));
+    }, 500);
+
+    function stopProgress() {
+      clearInterval(tickHandle);
+      btn.disabled = false;
+      oldInput.disabled = false;
+      newInput.disabled = false;
+    }
+
     const fd = new FormData();
     fd.append('old_file', oldF);
     fd.append('new_file', newF);
     try {
       const res = await fetch('/api/compare', { method: 'POST', body: fd });
       const data = await res.json();
+      stopProgress();
       if (!res.ok) { status.textContent = 'Error: ' + (data.error || res.statusText); return; }
+      status.textContent = `Saved as ${data.file} — loading report…`;
+      const reportRes = await fetch(`/api/reports/${data.version}`);
+      if (!reportRes.ok) { status.textContent = `Saved as ${data.file}, but failed to load it for viewing.`; loadHistory(); return; }
+      D = await reportRes.json();
       status.textContent = `Saved as ${data.file}`;
-      D = data.report;
       init(data.file);
       loadHistory();
     } catch (e) {
+      stopProgress();
       status.textContent = 'Error: ' + e.message + ' (is server.py running?)';
     }
   });
