@@ -120,7 +120,7 @@
 
   .app-file {
     font-size: 11.5px;
-    color: #4A607A;
+    color: #bfcfe2;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2262,7 +2262,7 @@
       <line x1="9" y1="4" x2="9" y2="20"/>
     </svg>
   </button>
-  <span class="app-logo">Formula Diff</span>
+  <span class="app-logo" id="hdr-lbl">Formula Diff</span>
   <span class="app-file" id="hdr-file">No file loaded</span>
   <button class="hdr-upload hdr-export-btn" id="export-btn" title="Export comparison as Excel audit report" hidden>
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
@@ -2318,12 +2318,12 @@
         <div class="drop-or">or run a new comparison</div>
         <div style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
           <div class="file-field">
-            <span class="file-field-label">Old workbook</span>
-            <input type="file" id="old-xlsx-input" accept=".xlsx" class="file-input">
+            <span class="file-field-label">Base File (Current Version)</span>
+            <input type="file" id="new-xlsx-input" accept=".xlsx" class="file-input">
           </div>
           <div class="file-field">
-            <span class="file-field-label">New workbook</span>
-            <input type="file" id="new-xlsx-input" accept=".xlsx" class="file-input">
+            <span class="file-field-label">Older Version</span>
+            <input type="file" id="old-xlsx-input" accept=".xlsx" class="file-input">
           </div>
           <button class="drop-btn" id="run-compare-btn" type="button" style="width:100%;margin-top:2px">Compare &amp; Save Report</button>
           <div id="compare-status" style="font-size:11.5px;color:var(--text-muted);min-height:16px;text-align:center"></div>
@@ -2505,9 +2505,11 @@
     // Show workbook filenames when available, otherwise fall back to JSON name
     const strip = n => String(n).replace(/\.xlsx$/i, '');
     const fileLabel = D.old_file && D.new_file
-      ? `${strip(D.old_file)}  →  ${strip(D.new_file)}`
+      ? 'Comparing <span style="color: var(--accent)">' + strip(D.new_file) + '</span> (current version) with <span style="color: var(--accent)">' + strip(D.old_file) + '</span> (older version)'
       : fname;
-    document.getElementById('hdr-file').textContent = fileLabel;
+    const headerLabel = D.old_file && D.new_file ? '' : 'FORMULA DIFF';
+    document.getElementById('hdr-lbl').innerHTML = headerLabel;
+    document.getElementById('hdr-file').innerHTML = fileLabel;
     document.getElementById('empty-state').hidden = true;
     document.getElementById('data-view').hidden = false;
     document.getElementById('export-btn').hidden = false;
